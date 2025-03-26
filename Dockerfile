@@ -28,7 +28,8 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user and configure permissions
-RUN useradd -m cooleruser && \
+RUN groupadd --system sensors && \
+    useradd -m cooleruser && \
     usermod -a -G plugdev,i2c,sensors cooleruser && \
     echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
