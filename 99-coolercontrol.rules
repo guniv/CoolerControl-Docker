@@ -1,0 +1,8 @@
+# USB/HID devices
+SUBSYSTEM=="usb", ATTR{idVendor}=="1e71", MODE="0666", GROUP="plugdev"
+SUBSYSTEM=="usb", ATTR{idVendor}=="2516", MODE="0666", GROUP="plugdev"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0c70", MODE="0666", GROUP="plugdev"
+
+# HIDRAW devices
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1e71", MODE="0666", GROUP="plugdev"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1b1c", MODE="0666", GROUP="plugdev"
