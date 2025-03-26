@@ -11,10 +11,12 @@ RUN apt-get update && \
         dbus \
         libglib2.0-0 \
         libudev1 \
+        libdbus-1-3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user and add to sudoers
+# Create non-root user and configure permissions
 RUN useradd -m cooleruser && \
+    usermod -a -G plugdev cooleruser && \
     echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Switch to non-root user
@@ -22,7 +24,7 @@ USER cooleruser
 WORKDIR /home/cooleruser
 
 # Download CoolerControl AppImage
-RUN wget https://gitlab.com/coolercontrol/coolercontrol/-/releases/permalink/latest/downloads/packages/CoolerControlD-x86_64.AppImage
+RUN wget -q https://gitlab.com/coolercontrol/coolercontrol/-/releases/permalink/latest/downloads/packages/CoolerControlD-x86_64.AppImage
 
 # Make AppImage executable
 RUN chmod +x CoolerControlD-x86_64.AppImage
@@ -30,5 +32,6 @@ RUN chmod +x CoolerControlD-x86_64.AppImage
 # Expose web interface port
 EXPOSE 11987
 
-# Start CoolerControl daemon
-CMD sudo ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
+# Entrypoint script to handle DBUS and permissions
+COPY entrypoint.sh .
+ENTRYPOINT ["./entrypoint.sh"]
