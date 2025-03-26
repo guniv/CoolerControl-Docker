@@ -38,10 +38,8 @@ RUN echo "coretemp" >> /etc/modules && \
     echo "nct6775" >> /etc/modules && \
     echo "it87" >> /etc/modules
 
-# Copy udev rules and DBUS configuration
+# Copy udev rules
 COPY 99-coolercontrol.rules /etc/udev/rules.d/
-RUN udevadm control --reload-rules && \
-    udevadm trigger
 
 # Switch to non-root user
 USER cooleruser
