@@ -2,6 +2,10 @@
 # Start DBUS system bus
 sudo /etc/init.d/dbus start
 
+# Initialize hardware monitoring
+sudo modprobe coretemp nct6775 it87
+sudo sensors-detect --auto
+
 # Ensure proper permissions for devices
 sudo udevadm control --reload && sudo udevadm trigger
 
