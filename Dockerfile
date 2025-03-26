@@ -23,7 +23,7 @@ RUN wget https://gitlab.com/coolercontrol/coolercontrol/-/releases/permalink/lat
 RUN chmod +x CoolerControlD-x86_64.AppImage
 
 # Expose web interface port
-EXPOSE 11987 8888
+EXPOSE 11987
 
 # Start CoolerControl daemon with necessary permissions
 CMD sudo ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
