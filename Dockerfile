@@ -24,7 +24,7 @@ RUN apt-get update && \
         python3-smbus \
         i2c-tools \
         lm-sensors \
-        hwmon \
+        kmod \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user and configure permissions
@@ -35,8 +35,12 @@ RUN useradd -m cooleruser && \
 # Configure sensors and hardware monitoring
 RUN echo "coretemp" >> /etc/modules && \
     echo "nct6775" >> /etc/modules && \
-    echo "it87" >> /etc/modules && \
-    sensors-detect --auto
+    echo "it87" >> /etc/modules
+
+# Copy udev rules and DBUS configuration
+COPY 99-coolercontrol.rules /etc/udev/rules.d/
+RUN udevadm control --reload-rules && \
+    udevadm trigger
 
 # Switch to non-root user
 USER cooleruser
