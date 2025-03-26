@@ -25,6 +25,7 @@ RUN apt-get update && \
         i2c-tools \
         lm-sensors \
         kmod \
+        sed \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user and configure permissions
@@ -37,6 +38,16 @@ RUN groupadd --system sensors && \
 RUN echo "coretemp" >> /etc/modules && \
     echo "nct6775" >> /etc/modules && \
     echo "it87" >> /etc/modules
+
+# Set up default configuration
+USER root
+RUN mkdir -p /default-config && \
+    wget -q -O /default-config/config.toml \
+      https://gitlab.com/coolercontrol/coolercontrol/-/raw/main/coolercontrold/resources/config-default.toml && \
+    # Remove existing IP setting and add new binding
+    sed -i '/^ipv4_address = .*/d' /default-config/config.toml && \
+    sed -i '/^\[settings\]/a ipv4_address = "0.0.0.0"' /default-config/config.toml && \
+    chown -R cooleruser:cooleruser /default-config
 
 # Copy udev rules
 COPY 99-coolercontrol.rules /etc/udev/rules.d/
@@ -54,7 +65,6 @@ RUN chmod +x CoolerControlD-x86_64.AppImage
 # Expose web interface port
 EXPOSE 11987
 
-# Entrypoint script to handle DBUS and permissions
-COPY entrypoint.sh .
-RUN sudo chmod +x entrypoint.sh
+# Entrypoint script
+COPY --chmod=+x entrypoint.sh .
 ENTRYPOINT ["./entrypoint.sh"]
