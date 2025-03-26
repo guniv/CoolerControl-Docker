@@ -1,0 +1,14 @@
+# Ignore Dockerfile build artifacts
+**/*.tar
+**/*.gz
+
+# Ignore Docker images and container files
+**/.docker
+**/docker-compose.yml
+**/docker-compose.override.yml
+
+# Ignore Docker build cache
+.docker/
+
+# Ignore environment variable files
+.env
