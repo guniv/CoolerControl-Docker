@@ -32,6 +32,8 @@ RUN chmod +x CoolerControlD-x86_64.AppImage
 # Expose web interface port
 EXPOSE 11987
 
+# Previous Dockerfile content remains the same until...
 # Entrypoint script to handle DBUS and permissions
 COPY entrypoint.sh .
+RUN sudo chmod +x entrypoint.sh 
 ENTRYPOINT ["./entrypoint.sh"]
