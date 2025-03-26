@@ -6,9 +6,14 @@ RUN apt-get update && \
         wget \
         sudo \
         libfuse2 \
+        libdrm-amdgpu1 \
+        udev \
+        dbus \
+        libglib2.0-0 \
+        libudev1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user and add to sudoers (required by CoolerControl)
+# Create a non-root user and add to sudoers
 RUN useradd -m cooleruser && \
     echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
@@ -25,5 +30,5 @@ RUN chmod +x CoolerControlD-x86_64.AppImage
 # Expose web interface port
 EXPOSE 11987
 
-# Start CoolerControl daemon with necessary permissions
+# Start CoolerControl daemon
 CMD sudo ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
