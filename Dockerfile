@@ -65,6 +65,12 @@ RUN chmod +x CoolerControlD-x86_64.AppImage
 # Expose web interface port
 EXPOSE 11987
 
-# Entrypoint script
-COPY --chmod=+x entrypoint.sh .
+# Previous content remains the same until...
+
+# Entrypoint script - ensure permissions
+COPY entrypoint.sh .
+USER root
+RUN chmod +x entrypoint.sh && chown cooleruser:cooleruser entrypoint.sh
+USER cooleruser
+
 ENTRYPOINT ["./entrypoint.sh"]
