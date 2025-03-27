@@ -39,15 +39,17 @@ RUN echo "coretemp" >> /etc/modules && \
     echo "nct6775" >> /etc/modules && \
     echo "it87" >> /etc/modules
 
-# Set up default configuration
+# Set up configuration files
 USER root
-RUN mkdir -p /default-config && \
-    wget -q -O /default-config/config.toml \
+RUN mkdir -p /etc/coolercontrol/default-config && \
+    wget -q -O /etc/coolercontrol/default-config/default-config.toml \
       https://gitlab.com/coolercontrol/coolercontrol/-/raw/main/coolercontrold/resources/config-default.toml && \
-    # Remove existing IP setting and add new binding
-    sed -i '/^ipv4_address = .*/d' /default-config/config.toml && \
-    sed -i '/^\[settings\]/a ipv4_address = "0.0.0.0"' /default-config/config.toml && \
-    chown -R cooleruser:cooleruser /default-config
+    cp /etc/coolercontrol/default-config/default-config.toml \
+       /etc/coolercontrol/default-config/edited-default-config.toml && \
+    # Apply edits to the copied config
+    sed -i '/^ipv4_address = .*/d' /etc/coolercontrol/default-config/edited-default-config.toml && \
+    sed -i '/^\[settings\]/a ipv4_address = "0.0.0.0"' /etc/coolercontrol/default-config/edited-default-config.toml && \
+    chown -R cooleruser:cooleruser /etc/coolercontrol/default-config
 
 # Copy udev rules
 COPY 99-coolercontrol.rules /etc/udev/rules.d/
@@ -64,8 +66,6 @@ RUN chmod +x CoolerControlD-x86_64.AppImage
 
 # Expose web interface port
 EXPOSE 11987
-
-# Previous content remains the same until...
 
 # Entrypoint script - ensure permissions
 COPY entrypoint.sh .
