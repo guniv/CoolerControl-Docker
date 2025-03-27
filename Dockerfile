@@ -20,8 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3-smbus \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user and configure permissions
+# Create necessary groups before adding the user
 RUN groupadd --system sensors && \
+    groupadd --system i2c && \
     useradd -m -G plugdev,i2c,sensors cooleruser && \
     echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
