@@ -4,8 +4,10 @@ This is my insanely basic attempt at putting CoolerControl in a Docker container
 
 Why did I do this? I wanted a good way to manage the fans on my Unraid server, and CoolerControl is currently the best way to manage fans on Linux systems. 
 
+### Configuration
+
 I recommend running the container initially in privileged mode to see what sensors CoolerControl picks up on its own, and then modifying your docker run command to expose specific directories and devices that were found by CoolerControl.
 
-CoolerControl is configured in this container to bind to 0.0.0.0, so all interfaces available to the container, on port 11987. You should mount /etc/coolercontrol in the container to keep your configuration persistent.
+CoolerControl is configured in this container to bind to 0.0.0.0, so all interfaces available to the container, on port 11987. You should mount ```/etc/coolercontrol``` in the container to keep your configuration persistent.
 
-You can expose /sys/class/hwmon to the container to get access to the vast majority of the sensors that will be detected by CoolerControl.
+You can expose ```/sys/class/hwmon``` to the container to get access to the vast majority of the sensors that will be detected by CoolerControl.
