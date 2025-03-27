@@ -11,24 +11,21 @@ jobs:
   check-and-build:
     runs-on: ubuntu-latest
     steps:
-      # Checkout with a PAT to allow pushing later
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: slim
-          token: ${{ secrets.CR_PAT }}  # Use your PAT with repo permissions
+          token: ${{ secrets.CR_PAT }}
 
-      # Fetch latest GitLab TAG (not release)
+      # Fetch latest GitLab tag
       - name: Get Latest GitLab Tag
         id: get-tag
         run: |
-          PROJECT_ID="30707566"  # Your GitLab project ID
-          # Fetch the latest tag by creation date
+          PROJECT_ID="30707566"
           LATEST_TAG=$(curl -s "https://gitlab.com/api/v4/projects/$PROJECT_ID/repository/tags" | jq -r '.[0].name')
           echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_OUTPUT
-          echo "Latest tag: $LATEST_TAG"
 
-      # Compare with last tracked version
+      # Compare versions
       - name: Compare with Last Built Version
         id: check-version
         run: |
@@ -37,27 +34,39 @@ jobs:
           else
             LAST_BUILT=""
           fi
-
           if [[ "${{ steps.get-tag.outputs.LATEST_TAG }}" != "$LAST_BUILT" ]]; then
             echo "NEW_RELEASE=true" >> $GITHUB_OUTPUT
-            echo "New tag detected: ${{ steps.get-tag.outputs.LATEST_TAG }}"
           else
             echo "NEW_RELEASE=false" >> $GITHUB_OUTPUT
           fi
 
-      # Rest of your build steps (same as before)
+      # Set up Docker Buildx with explicit cache directory
       - name: Set up Docker Buildx
         if: steps.check-version.outputs.NEW_RELEASE == 'true'
         uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+          buildkitd-config: |
+            [worker.oci]
+              enabled = false
+            [worker.containerd]
+              enabled = true
+
+      # Create the cache directory explicitly
+      - name: Create Cache Directory
+        if: steps.check-version.outputs.NEW_RELEASE == 'true'
+        run: |
+          mkdir -p ~/.cache/docker
 
       - name: Cache Docker layers
         if: steps.check-version.outputs.NEW_RELEASE == 'true'
         uses: actions/cache@v3
         with:
           path: ~/.cache/docker
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-docker-cache-${{ hashFiles('Dockerfile') }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-docker-cache-
 
       - name: Log in to GitHub Container Registry
         if: steps.check-version.outputs.NEW_RELEASE == 'true'
@@ -69,9 +78,13 @@ jobs:
 
       - name: Build and Push Docker Image
         if: steps.check-version.outputs.NEW_RELEASE == 'true'
-        run: |
-          docker build -t ghcr.io/guniv/cc-docker-slim:latest .
-          docker push ghcr.io/guniv/cc-docker-slim:latest
+        uses: docker/build-push-action@v5  # Use the dedicated action
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/guniv/cc-docker-slim:latest
+          cache-from: type=local,src=~/.cache/docker
+          cache-to: type=local,dest=~/.cache/docker
 
       - name: Update Release Tracker
         if: steps.check-version.outputs.NEW_RELEASE == 'true'
@@ -81,5 +94,4 @@ jobs:
           git config --global user.email "actions@github.com"
           git add last_release.txt
           git commit -m "Update to ${{ steps.get-tag.outputs.LATEST_TAG }}"
-          # Push using the PAT for authentication
           git push https://${{ github.actor }}:${{ secrets.CR_PAT }}@github.com/${{ github.repository }}.git HEAD:slim
