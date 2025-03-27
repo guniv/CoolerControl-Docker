@@ -1,23 +1,25 @@
 #!/bin/bash
-
-# Start essential services
-dbus-daemon --system --fork
-udevd --daemon
+# Initialize essential services
+sudo /etc/init.d/dbus start
+sudo service udev start
 
 # Load hardware monitoring modules
-modprobe coretemp nct6775 it87
+sudo modprobe coretemp nct6775 it87
 
-# Ensure default configuration exists
-mkdir -p /etc/coolercontrol
+# Initialize configuration
+sudo mkdir -p /etc/coolercontrol
 if [ ! -f /etc/coolercontrol/config.toml ]; then
     echo "Initializing default configuration..."
-    cp /default-config/config.toml /etc/coolercontrol/
-    chown cooleruser:cooleruser /etc/coolercontrol/config.toml
+    sudo cp /default-config/config.toml /etc/coolercontrol/
+    sudo chown cooleruser:cooleruser /etc/coolercontrol/config.toml
 fi
 
 # Reload udev rules
-udevadm control --reload
-udevadm trigger
+sudo udevadm control --reload
+sudo udevadm trigger
+
+# Initialize sensors
+sudo sensors-detect --auto
 
 # Start CoolerControl
-exec ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
+exec sudo ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
