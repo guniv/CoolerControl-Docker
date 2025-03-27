@@ -82,7 +82,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/guniv/cc-docker-slim:latest
+          tags: ghcr.io/guniv/coolercontrol-docker:latest
           cache-from: type=local,src=~/.cache/docker
           cache-to: type=local,dest=~/.cache/docker
 
