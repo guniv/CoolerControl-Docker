@@ -1,10 +1,12 @@
 FROM debian:stable-slim
 
-# Install system dependencies
+# Install system dependencies including jq for JSON parsing
 RUN apt-get update && \
     apt-get install -y \
         wget \
         sudo \
+        jq \
+        curl \
         libfuse2 \
         libdrm-amdgpu1 \
         udev \
@@ -42,13 +44,19 @@ RUN echo "coretemp" >> /etc/modules && \
 # Set up configuration files
 USER root
 RUN mkdir -p /etc/coolercontrol/default-config && \
+    # Get latest version from GitLab API
+    CC_VERSION=$(curl -s "https://gitlab.com/api/v4/projects/coolercontrol%2Fcoolercontrol/releases" | jq -r '.[0].tag_name') && \
+    # Download version-specific config
     wget -q -O /etc/coolercontrol/default-config/default-config.toml \
-      https://gitlab.com/coolercontrol/coolercontrol/-/raw/main/coolercontrold/resources/config-default.toml && \
+      "https://gitlab.com/coolercontrol/coolercontrol/-/raw/${CC_VERSION}/coolercontrold/resources/config-default.toml" && \
     cp /etc/coolercontrol/default-config/default-config.toml \
        /etc/coolercontrol/default-config/edited-default-config.toml && \
     # Apply edits to the copied config
     sed -i '/^ipv4_address = .*/d' /etc/coolercontrol/default-config/edited-default-config.toml && \
     sed -i '/^\[settings\]/a ipv4_address = "0.0.0.0"' /etc/coolercontrol/default-config/edited-default-config.toml && \
+    # Store version for later use
+    echo "${CC_VERSION}" > /tmp/cc_version && \
+    chmod a+r /tmp/cc_version && \
     chown -R cooleruser:cooleruser /etc/coolercontrol/default-config
 
 # Copy udev rules
@@ -58,8 +66,9 @@ COPY 99-coolercontrol.rules /etc/udev/rules.d/
 USER cooleruser
 WORKDIR /home/cooleruser
 
-# Download CoolerControl AppImage
-RUN wget -q https://gitlab.com/coolercontrol/coolercontrol/-/releases/permalink/latest/downloads/packages/CoolerControlD-x86_64.AppImage
+# Download CoolerControl AppImage using stored version
+RUN CC_VERSION=$(cat /tmp/cc_version) && \
+    wget -q "https://gitlab.com/coolercontrol/coolercontrol/-/releases/${CC_VERSION}/downloads/packages/CoolerControlD-x86_64.AppImage"
 
 # Make AppImage executable
 RUN chmod +x CoolerControlD-x86_64.AppImage
