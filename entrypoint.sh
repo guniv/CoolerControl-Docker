@@ -10,7 +10,7 @@ sudo modprobe coretemp nct6775 it87
 sudo mkdir -p /etc/coolercontrol
 if [ ! -f /etc/coolercontrol/config.toml ]; then
     echo "Initializing default configuration..."
-    sudo cp /default-config/config.toml /etc/coolercontrol/
+    sudo cp /etc/coolercontrol/default-config/edited-default-config.toml /etc/coolercontrol/config.toml
     sudo chown cooleruser:cooleruser /etc/coolercontrol/config.toml
 fi
 
