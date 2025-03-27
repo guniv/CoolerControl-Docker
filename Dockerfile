@@ -45,7 +45,7 @@ RUN echo "coretemp" >> /etc/modules && \
 USER root
 RUN mkdir -p /etc/coolercontrol/default-config && \
     # Get latest version from GitLab API
-    CC_VERSION=$(curl -s "https://gitlab.com/api/v4/projects/$PROJECT_ID/repository/tags" | jq -r '.[0].name')
+    CC_VERSION=$(curl -s "https://gitlab.com/api/v4/projects/coolercontrol%2Fcoolercontrol/repository/tags" | jq -r '.[0].name') && \
     # Download version-specific config
     wget -q -O /etc/coolercontrol/default-config/default-config.toml \
       "https://gitlab.com/coolercontrol/coolercontrol/-/raw/${CC_VERSION}/coolercontrold/resources/config-default.toml" && \
