@@ -28,18 +28,17 @@ RUN apt-get update && \
         lm-sensors \
         kmod \
         sed \
+        dbus-user-session \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user and configure permissions
 RUN groupadd --system sensors && \
     useradd -m cooleruser && \
-    usermod -a -G plugdev,i2c,sensors cooleruser && \
+    usermod -a -G plugdev,i2c,sensors,adm,dialout cooleruser && \
     echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Configure sensors and hardware monitoring
-RUN echo "coretemp" >> /etc/modules && \
-    echo "nct6775" >> /etc/modules && \
-    echo "it87" >> /etc/modules
+# Configure environment
+ENV XDG_RUNTIME_DIR=/tmp/runtime-cooleruser
 
 # Detect and store version
 USER root
@@ -51,9 +50,8 @@ RUN mkdir -p /opt/coolercontrol && \
 # Download CoolerControl AppImage
 RUN CC_VERSION=$(cat /opt/coolercontrol/version) && \
     wget -q "https://gitlab.com/coolercontrol/coolercontrol/-/releases/${CC_VERSION}/downloads/packages/CoolerControlD-x86_64.AppImage" \
-    -O /home/cooleruser/CoolerControlD-x86_64.AppImage && \
-    chmod +x /home/cooleruser/CoolerControlD-x86_64.AppImage && \
-    chown cooleruser:cooleruser /home/cooleruser/CoolerControlD-x86_64.AppImage
+    -O /CoolerControlD-x86_64.AppImage && \
+    chmod +x /CoolerControlD-x86_64.AppImage
 
 # Create config directory structure
 RUN mkdir -p /etc/coolercontrol && \
@@ -64,7 +62,7 @@ COPY 99-coolercontrol.rules /etc/udev/rules.d/
 
 # Switch to non-root user
 USER cooleruser
-WORKDIR /home/cooleruser
+WORKDIR /
 
 # Expose web interface port
 EXPOSE 11987
