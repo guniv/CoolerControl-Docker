@@ -1,10 +1,7 @@
 FROM debian:stable-slim
 
 # Install system dependencies
-RUN apt-get update && \
-    apt-get install -y \
-        wget \
-        sudo \
+RUN apt-get update && apt-get install -y --no-install-recommends \
         libfuse2 \
         libdrm-amdgpu1 \
         udev \
@@ -14,7 +11,6 @@ RUN apt-get update && \
         libdbus-1-3 \
         libusb-1.0-0 \
         python3 \
-        python3-setuptools \
         python3-usb \
         python3-colorlog \
         python3-crcmod \
@@ -22,31 +18,22 @@ RUN apt-get update && \
         python3-docopt \
         python3-pil \
         python3-smbus \
-        i2c-tools \
-        lm-sensors \
-        kmod \
-        sed \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user and configure permissions
 RUN groupadd --system sensors && \
-    useradd -m cooleruser && \
-    usermod -a -G plugdev,i2c,sensors cooleruser && \
+    useradd -m -G plugdev,i2c,sensors cooleruser && \
     echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Configure sensors and hardware monitoring
-RUN echo "coretemp" >> /etc/modules && \
-    echo "nct6775" >> /etc/modules && \
-    echo "it87" >> /etc/modules
+# Configure hardware monitoring modules
+RUN echo -e "coretemp\nnct6775\nit87" > /etc/modules
 
 # Set up default configuration
-USER root
-RUN mkdir -p /default-config && \
-    wget -q -O /default-config/config.toml \
+WORKDIR /default-config
+RUN wget -q -O config.toml \
       https://gitlab.com/coolercontrol/coolercontrol/-/raw/main/coolercontrold/resources/config-default.toml && \
-    # Remove existing IP setting and add new binding
-    sed -i '/^ipv4_address = .*/d' /default-config/config.toml && \
-    sed -i '/^\[settings\]/a ipv4_address = "0.0.0.0"' /default-config/config.toml && \
+    sed -i '/^ipv4_address = .*/d' config.toml && \
+    sed -i '/^\[settings\]/a ipv4_address = "0.0.0.0"' config.toml && \
     chown -R cooleruser:cooleruser /default-config
 
 # Copy udev rules
@@ -57,20 +44,14 @@ USER cooleruser
 WORKDIR /home/cooleruser
 
 # Download CoolerControl AppImage
-RUN wget -q https://gitlab.com/coolercontrol/coolercontrol/-/releases/permalink/latest/downloads/packages/CoolerControlD-x86_64.AppImage
-
-# Make AppImage executable
-RUN chmod +x CoolerControlD-x86_64.AppImage
+RUN wget -q https://gitlab.com/coolercontrol/coolercontrol/-/releases/permalink/latest/downloads/packages/CoolerControlD-x86_64.AppImage && \
+    chmod +x CoolerControlD-x86_64.AppImage
 
 # Expose web interface port
 EXPOSE 11987
 
-# Previous content remains the same until...
-
-# Entrypoint script - ensure permissions
-COPY entrypoint.sh .
-USER root
-RUN chmod +x entrypoint.sh && chown cooleruser:cooleruser entrypoint.sh
-USER cooleruser
+# Copy and set up entrypoint script
+COPY entrypoint.sh /home/cooleruser/
+RUN chmod +x /home/cooleruser/entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]
