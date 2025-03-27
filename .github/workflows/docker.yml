@@ -11,10 +11,12 @@ jobs:
   check-and-build:
     runs-on: ubuntu-latest
     steps:
+      # Checkout with a PAT to allow pushing later
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: slim
+          token: ${{ secrets.CR_PAT }}  # Use your PAT with repo permissions
 
       # Fetch latest GitLab TAG (not release)
       - name: Get Latest GitLab Tag
@@ -71,7 +73,6 @@ jobs:
           docker build -t ghcr.io/guniv/cc-docker-slim:latest .
           docker push ghcr.io/guniv/cc-docker-slim:latest
 
-      # Update last_release.txt
       - name: Update Release Tracker
         if: steps.check-version.outputs.NEW_RELEASE == 'true'
         run: |
@@ -80,4 +81,5 @@ jobs:
           git config --global user.email "actions@github.com"
           git add last_release.txt
           git commit -m "Update to ${{ steps.get-tag.outputs.LATEST_TAG }}"
-          git push
+          # Push using the PAT for authentication
+          git push https://${{ github.actor }}:${{ secrets.CR_PAT }}@github.com/${{ github.repository }}.git HEAD:slim
