@@ -1,30 +1,28 @@
 #!/bin/bash
 # Initialize essential services
-sudo /etc/init.d/dbus start
+sudo mkdir -p /var/run/dbus
+sudo dbus-daemon --system --fork
+sudo udevd --daemon
 sudo service udev start
 
-# Load hardware monitoring modules
-sudo modprobe coretemp nct6775 it87
+# Create runtime directory
+mkdir -p ${XDG_RUNTIME_DIR}
+chmod 0700 ${XDG_RUNTIME_DIR}
 
-# Get stored version
-CC_VERSION=$(cat /opt/coolercontrol/version)
+# Load hardware monitoring modules
+sudo modprobe coretemp nct6775 it87 || true
 
 # Initialize configuration
 sudo mkdir -p /etc/coolercontrol
 sudo chown cooleruser:cooleruser /etc/coolercontrol
 
 if [ ! -f /etc/coolercontrol/config.toml ]; then
-    echo "Initializing configuration for version ${CC_VERSION}..."
-    
-    # Download and modify config
+    echo "Initializing configuration..."
+    CC_VERSION=$(cat /opt/coolercontrol/version)
     wget -q -O /tmp/default-config.toml \
       "https://gitlab.com/coolercontrol/coolercontrol/-/raw/${CC_VERSION}/coolercontrold/resources/config-default.toml"
-    
-    # Apply modifications
     sed -i '/^ipv4_address = .*/d' /tmp/default-config.toml
     sed -i '/^\[settings\]/a ipv4_address = "0.0.0.0"' /tmp/default-config.toml
-    
-    # Move to final location
     mv /tmp/default-config.toml /etc/coolercontrol/config.toml
     chmod 644 /etc/coolercontrol/config.toml
 fi
@@ -33,8 +31,8 @@ fi
 sudo udevadm control --reload
 sudo udevadm trigger
 
-# Initialize sensors
-sudo sensors-detect --auto
+# Fix permissions for runtime directory
+sudo chown -R cooleruser:cooleruser ${XDG_RUNTIME_DIR}
 
-# Start CoolerControl
-exec sudo -u cooleruser ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
+# Start CoolerControl with necessary privileges
+exec sudo -E ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
