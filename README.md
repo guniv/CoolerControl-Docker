@@ -11,3 +11,5 @@ I recommend running the container initially in privileged mode to see what senso
 CoolerControl is configured in this container to bind to 0.0.0.0, so all interfaces available to the container, on port 11987. You should mount ```/etc/coolercontrol/``` in the container to keep your configuration persistent.
 
 You can expose ```/sys/class/hwmon/``` to the container to get access to the vast majority of the sensors that will be detected by CoolerControl.
+
+On my Unraid server I can also expose Nvidia cards to the container by adding ```--runtime=nvidia --gpus=all``` to extra parameters.
