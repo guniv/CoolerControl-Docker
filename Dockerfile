@@ -57,6 +57,9 @@ RUN CC_VERSION=$(cat /opt/coolercontrol/version) && \
 RUN mkdir -p /etc/coolercontrol && \
     chown cooleruser:cooleruser /etc/coolercontrol
 
+# Copy udev rules
+COPY 99-coolercontrol.rules /etc/udev/rules.d/
+
 # Switch to non-root user
 USER cooleruser
 WORKDIR /
