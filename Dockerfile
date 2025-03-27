@@ -1,7 +1,8 @@
 FROM debian:stable-slim
 
-# Install system dependencies
+# Install system dependencies, including wget
 RUN apt-get update && apt-get install -y --no-install-recommends \
+        wget \ 
         libfuse2 \
         libdrm-amdgpu1 \
         udev \
