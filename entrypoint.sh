@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 # Initialize essential services
 sudo /etc/init.d/dbus start
 sudo service udev start
@@ -6,12 +8,21 @@ sudo service udev start
 # Load hardware monitoring modules
 sudo modprobe coretemp nct6775 it87
 
-# Initialize configuration
+# Set up configuration
 sudo mkdir -p /etc/coolercontrol
+sudo chown cooleruser:cooleruser /etc/coolercontrol
+
 if [ ! -f /etc/coolercontrol/config.toml ]; then
-    echo "Initializing default configuration..."
-    sudo cp /etc/coolercontrol/default-config/edited-default-config.toml /etc/coolercontrol/config.toml
+    echo "Initializing configuration..."
+    sudo cp /etc/coolercontrol/default-config/default-config.toml /etc/coolercontrol/config.toml
+    
+    # Apply configuration modifications
+    echo "Applying configuration adjustments..."
+    sudo sed -i '/^ipv4_address = .*/d' /etc/coolercontrol/config.toml
+    sudo sed -i '/^\[settings\]/a ipv4_address = "0.0.0.0"' /etc/coolercontrol/config.toml
+    
     sudo chown cooleruser:cooleruser /etc/coolercontrol/config.toml
+    echo "Configuration initialized successfully"
 fi
 
 # Reload udev rules
@@ -22,4 +33,5 @@ sudo udevadm trigger
 sudo sensors-detect --auto
 
 # Start CoolerControl
-exec sudo ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
+echo "Starting CoolerControl..."
+exec sudo -u cooleruser ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
