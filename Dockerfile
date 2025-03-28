@@ -31,6 +31,9 @@ RUN groupadd --system -f sensors && \
     groupadd --system -f audio && \
     groupadd --system -f video
 
+# Add this after group creation but before user setup
+ENV XDG_RUNTIME_DIR=/tmp/runtime-cooleruser
+
 # Install packages with proper cleanup
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
