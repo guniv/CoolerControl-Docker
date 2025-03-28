@@ -12,7 +12,14 @@ RUN apt-get update && \
         libglib2.0-0 \
         libusb-1.0-0 \
         python3 \
+        python3-setuptools \
+        python3-pyusb \
+        python3-colorlog \
+        python3-crcmod \
+        python3-docopt \
+        python3-pil \
         python3-hidapi \
+        python3-smbus \
         i2c-tools \
         lm-sensors \
         kmod \
