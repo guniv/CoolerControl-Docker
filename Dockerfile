@@ -9,10 +9,8 @@ RUN apt-get update && \
         curl \
         libfuse2 \
         libdrm-amdgpu1 \
-        udev \
         dbus \
         libglib2.0-0 \
-        libudev1 \
         libdbus-1-3 \
         libusb-1.0-0 \
         python3 \
