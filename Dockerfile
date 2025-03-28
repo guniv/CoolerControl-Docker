@@ -13,7 +13,7 @@ RUN apt-get update && \
         libusb-1.0-0 \
         python3 \
         python3-setuptools \
-        python3-pyusb \
+        python3-usb \
         python3-colorlog \
         python3-crcmod \
         python3-docopt \
