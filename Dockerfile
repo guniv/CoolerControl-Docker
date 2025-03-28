@@ -1,6 +1,9 @@
 # Stage 1: Builder
 FROM debian:stable-slim AS builder
 
+# Set non-interactive frontend for debian packages
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
@@ -20,6 +23,21 @@ RUN CC_VERSION=$(cat /opt/coolercontrol/version) && \
 # Stage 2: Runtime
 FROM debian:stable-slim
 
+# Create required system groups first
+RUN groupadd --system sensors && \
+    groupadd --system i2c && \
+    groupadd --system plugdev && \
+    groupadd --system dialout && \
+    groupadd --system audio && \
+    groupadd --system video
+
+# Configure user and permissions
+RUN useradd -m cooleruser && \
+    usermod -a -G plugdev,i2c,sensors,dialout,audio,video cooleruser && \
+    echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Set non-interactive frontend and install packages
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libdrm-amdgpu1 \
@@ -30,12 +48,6 @@ RUN apt-get update && \
         dbus \
         curl \
     && rm -rf /var/lib/apt/lists/*
-
-# Configure user and permissions
-RUN groupadd --system sensors && \
-    useradd -m cooleruser && \
-    usermod -a -G plugdev,i2c,sensors,dialout,audio,video cooleruser && \
-    echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Create essential directories
 RUN mkdir -p \
