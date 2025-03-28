@@ -1,4 +1,10 @@
 #!/bin/bash
+
+# Initialize essential directories first
+sudo mkdir -p "${XDG_RUNTIME_DIR}"
+sudo chown cooleruser:cooleruser "${XDG_RUNTIME_DIR}"
+sudo chmod 0700 "${XDG_RUNTIME_DIR}"
+
 # Initialize DBUS
 sudo mkdir -p /var/run/dbus
 sudo dbus-daemon --system --fork
