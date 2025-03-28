@@ -23,13 +23,13 @@ RUN CC_VERSION=$(cat /opt/coolercontrol/version) && \
 # Stage 2: Runtime
 FROM debian:stable-slim
 
-# Create required system groups first
-RUN groupadd --system sensors && \
-    groupadd --system i2c && \
-    groupadd --system plugdev && \
-    groupadd --system dialout && \
-    groupadd --system audio && \
-    groupadd --system video
+# Create required system groups (force-create to handle existing ones)
+RUN groupadd --system -f sensors && \
+    groupadd --system -f i2c && \
+    groupadd --system -f plugdev && \
+    groupadd --system -f dialout && \
+    groupadd --system -f audio && \
+    groupadd --system -f video
 
 # Configure user and permissions
 RUN useradd -m cooleruser && \
