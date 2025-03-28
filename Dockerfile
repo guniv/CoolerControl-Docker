@@ -29,22 +29,28 @@ RUN apt-get update && \
         libdrm-amdgpu1 \
         libglib2.0-0 \
         libusb-1.0-0 \
+        libfuse2 \
         i2c-tools \
         lm-sensors \
         kmod \
         sed \
         ca-certificates \
+        curl \
+        sudo \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user and configure permissions
 RUN groupadd --system sensors && \
     useradd -m cooleruser && \
-    usermod -a -G plugdev,i2c,sensors,adm,dialout cooleruser
+    usermod -a -G plugdev,i2c,sensors,adm,dialout cooleruser && \
+    echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Configure environment and directories
 ENV XDG_RUNTIME_DIR=/tmp/runtime-cooleruser
 RUN mkdir -p /etc/coolercontrol && \
-    chown cooleruser:cooleruser /etc/coolercontrol
+    chown cooleruser:cooleruser /etc/coolercontrol && \
+    mkdir -p /run/coolercontrol && \
+    chown cooleruser:cooleruser /run/coolercontrol
 
 # Copy artifacts from builder
 COPY --from=builder /CoolerControlD-x86_64.AppImage /
