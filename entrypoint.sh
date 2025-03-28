@@ -11,9 +11,12 @@ if [ ! -f /etc/coolercontrol/config.toml ]; then
         "https://gitlab.com/coolercontrol/coolercontrol/-/raw/${CC_VERSION}/coolercontrold/resources/config-default.toml"
     sed -i '/^ipv4_address = .*/d' /tmp/default-config.toml
     sed -i '/^\[settings\]/a ipv4_address = "0.0.0.0"' /tmp/default-config.toml
-    mv /tmp/default-config.toml /etc/coolercontrol/config.toml
-    chmod 644 /etc/coolercontrol/config.toml
+    sudo mv /tmp/default-config.toml /etc/coolercontrol/config.toml
+    sudo chmod 644 /etc/coolercontrol/config.toml
 fi
 
-# Start CoolerControl
-exec ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
+# Fix permissions for runtime directory
+sudo chown -R cooleruser:cooleruser "${XDG_RUNTIME_DIR}"
+
+# Start CoolerControl with necessary privileges
+exec sudo -E ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
