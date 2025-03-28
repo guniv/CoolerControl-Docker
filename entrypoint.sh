@@ -2,15 +2,10 @@
 # Initialize essential services
 sudo mkdir -p /var/run/dbus
 sudo dbus-daemon --system --fork
-sudo udevd --daemon
-sudo service udev start
 
 # Create runtime directory
 mkdir -p ${XDG_RUNTIME_DIR}
 chmod 0700 ${XDG_RUNTIME_DIR}
-
-# Load hardware monitoring modules
-sudo modprobe coretemp nct6775 it87 || true
 
 # Initialize configuration
 sudo mkdir -p /etc/coolercontrol
@@ -26,10 +21,6 @@ if [ ! -f /etc/coolercontrol/config.toml ]; then
     mv /tmp/default-config.toml /etc/coolercontrol/config.toml
     chmod 644 /etc/coolercontrol/config.toml
 fi
-
-# Reload udev rules
-sudo udevadm control --reload
-sudo udevadm trigger
 
 # Fix permissions for runtime directory
 sudo chown -R cooleruser:cooleruser ${XDG_RUNTIME_DIR}

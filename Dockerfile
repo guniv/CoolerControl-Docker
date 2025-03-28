@@ -9,26 +9,21 @@ RUN apt-get update && \
         curl \
         libfuse2 \
         libdrm-amdgpu1 \
-        udev \
-        dbus \
         libglib2.0-0 \
-        libudev1 \
-        libdbus-1-3 \
         libusb-1.0-0 \
         python3 \
         python3-setuptools \
         python3-usb \
         python3-colorlog \
         python3-crcmod \
-        python3-hidapi \
         python3-docopt \
         python3-pil \
+        python3-hidapi \
         python3-smbus \
         i2c-tools \
         lm-sensors \
         kmod \
         sed \
-        dbus-user-session \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user and configure permissions
@@ -56,9 +51,6 @@ RUN CC_VERSION=$(cat /opt/coolercontrol/version) && \
 # Create config directory structure
 RUN mkdir -p /etc/coolercontrol && \
     chown cooleruser:cooleruser /etc/coolercontrol
-
-# Copy udev rules
-COPY 99-coolercontrol.rules /etc/udev/rules.d/
 
 # Switch to non-root user
 USER cooleruser
