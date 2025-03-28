@@ -1,6 +1,11 @@
 #!/bin/bash
-# Initialize runtime directory
+# Initialize DBUS
+sudo mkdir -p /var/run/dbus
+sudo dbus-daemon --system --fork
+
+# Create essential runtime directories
 mkdir -p "${XDG_RUNTIME_DIR}"
+sudo chown cooleruser:cooleruser "${XDG_RUNTIME_DIR}"
 chmod 0700 "${XDG_RUNTIME_DIR}"
 
 # Initialize configuration
@@ -15,8 +20,5 @@ if [ ! -f /etc/coolercontrol/config.toml ]; then
     sudo chmod 644 /etc/coolercontrol/config.toml
 fi
 
-# Fix permissions for runtime directory
-sudo chown -R cooleruser:cooleruser "${XDG_RUNTIME_DIR}"
-
-# Start CoolerControl with necessary privileges
+# Start with direct hardware access
 exec sudo -E ./CoolerControlD-x86_64.AppImage --appimage-extract-and-run
