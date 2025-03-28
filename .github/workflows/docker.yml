@@ -8,7 +8,7 @@ on:
     - cron: '0 * * * *'  # Check GitLab releases hourly
   push:
     branches:
-      - testing
+      - main
 
 jobs:
   check-and-build:
@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: testing
+          ref: main
           token: ${{ secrets.CR_PAT }}
 
       # Fetch GitLab tag (runs on schedule; skips if triggered by push)
@@ -85,7 +85,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/guniv/coolercontrol-docker:testing
+          tags: ghcr.io/guniv/coolercontrol-docker:latest
           cache-from: type=local,src=~/.cache/docker
           cache-to: type=local,dest=~/.cache/docker
 
