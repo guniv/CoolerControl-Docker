@@ -1,68 +1,61 @@
+# Stage 1: Builder
+FROM debian:stable-slim AS builder
+
+# Install build-time dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        curl \
+        jq \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Detect and store version
+RUN mkdir -p /opt/coolercontrol && \
+    CC_VERSION=$(curl -s "https://gitlab.com/api/v4/projects/coolercontrol%2Fcoolercontrol/releases" | jq -r '.[0].tag_name') && \
+    echo "${CC_VERSION}" > /opt/coolercontrol/version
+
+# Download CoolerControl AppImage
+RUN CC_VERSION=$(cat /opt/coolercontrol/version) && \
+    curl -s -L "https://gitlab.com/coolercontrol/coolercontrol/-/releases/${CC_VERSION}/downloads/packages/CoolerControlD-x86_64.AppImage" \
+        -o /CoolerControlD-x86_64.AppImage && \
+    chmod +x /CoolerControlD-x86_64.AppImage
+
+# Stage 2: Runtime
 FROM debian:stable-slim
 
-# Install system dependencies
+# Install runtime dependencies
 RUN apt-get update && \
-    apt-get install -y \
-        wget \
-        sudo \
-        jq \
-        curl \
-        libfuse2 \
+    apt-get install -y --no-install-recommends \
         libdrm-amdgpu1 \
         libglib2.0-0 \
         libusb-1.0-0 \
-        python3 \
-        python3-setuptools \
-        python3-usb \
-        python3-colorlog \
-        python3-crcmod \
-        python3-docopt \
-        python3-pil \
-        python3-hidapi \
-        python3-smbus \
         i2c-tools \
         lm-sensors \
         kmod \
         sed \
+        ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user and configure permissions
 RUN groupadd --system sensors && \
     useradd -m cooleruser && \
-    usermod -a -G plugdev,i2c,sensors,adm,dialout cooleruser && \
-    echo "cooleruser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    usermod -a -G plugdev,i2c,sensors,adm,dialout cooleruser
 
-# Configure environment
+# Configure environment and directories
 ENV XDG_RUNTIME_DIR=/tmp/runtime-cooleruser
-
-# Detect and store version
-USER root
-RUN mkdir -p /opt/coolercontrol && \
-    CC_VERSION=$(curl -s "https://gitlab.com/api/v4/projects/coolercontrol%2Fcoolercontrol/releases" | jq -r '.[0].tag_name') && \
-    echo "${CC_VERSION}" > /opt/coolercontrol/version && \
-    chmod a+r /opt/coolercontrol/version
-
-# Download CoolerControl AppImage
-RUN CC_VERSION=$(cat /opt/coolercontrol/version) && \
-    wget -q "https://gitlab.com/coolercontrol/coolercontrol/-/releases/${CC_VERSION}/downloads/packages/CoolerControlD-x86_64.AppImage" \
-    -O /CoolerControlD-x86_64.AppImage && \
-    chmod +x /CoolerControlD-x86_64.AppImage
-
-# Create config directory structure
 RUN mkdir -p /etc/coolercontrol && \
     chown cooleruser:cooleruser /etc/coolercontrol
 
-# Switch to non-root user
+# Copy artifacts from builder
+COPY --from=builder /CoolerControlD-x86_64.AppImage /
+COPY --from=builder /opt/coolercontrol/version /opt/coolercontrol/version
+
+# Entrypoint setup
+COPY entrypoint.sh /
+RUN chmod +x /entrypoint.sh && chown cooleruser:cooleruser /entrypoint.sh
+
 USER cooleruser
 WORKDIR /
-
-# Expose web interface port
 EXPOSE 11987
 
-# Entrypoint script
-COPY entrypoint.sh .
-USER root
-RUN chmod +x entrypoint.sh && chown cooleruser:cooleruser entrypoint.sh
-USER cooleruser
-
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
