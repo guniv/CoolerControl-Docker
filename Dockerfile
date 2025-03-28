@@ -23,13 +23,28 @@ RUN CC_VERSION=$(cat /opt/coolercontrol/version) && \
 # Stage 2: Runtime
 FROM debian:stable-slim
 
-# Create required system groups (force-create to handle existing ones)
+# Create required system groups first
 RUN groupadd --system -f sensors && \
     groupadd --system -f i2c && \
     groupadd --system -f plugdev && \
     groupadd --system -f dialout && \
     groupadd --system -f audio && \
     groupadd --system -f video
+
+# Install packages with proper cleanup
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libdrm-amdgpu1 \
+        libglib2.0-0 \
+        libusb-1.0-0 \
+        libfuse2 \
+        sudo \
+        dbus \
+        curl \
+        ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Configure user and permissions
 RUN useradd -m cooleruser && \
