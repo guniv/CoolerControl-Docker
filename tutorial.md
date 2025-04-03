@@ -241,7 +241,6 @@ Once the devices have been checked and set up in the Unraid _Update container_ s
   <img 
     src="tutorial/fanspeed.jpeg" 
     alt="in coolercontrol, the fan has been set to manual and the speed has been adjusted"
-    width="700" 
   />
 </p>
 
@@ -252,7 +251,93 @@ If no error appears when applying the new fan speed, the configuration is workin
 
 ## Configuring CoolerControl
 
-Identify and name devices
-Creating a profile
-Assigning a fan to a profile
-Creating a custom sensor for HDDs
+### Identify and name devices
+
+In CoolerControl, start by identifying fans by manually spinning them up and down. Then, give them a recognizable name by clicking on the rename button (🖉).
+
+<p align="center">  
+  <img 
+    src="tutorial/rename.jpeg" 
+    alt="the rename box is open in CoolerControl and filled in with CPU Fan"
+  />
+</p>
+
+The hard drives can also be named. Compare the temperature on the Unraid dashboard to the temperature in CoolerControl and name them accordingly, e.g. Parity, Disk 1, etc.
+
+### Setting up a profile
+
+In CoolerControl, find profiles, found above the devices and sensors, and hit _Add Profile._
+
+<p align="center">  
+  <img 
+    src="tutorial/addprofile.jpeg" 
+    alt="the add profile button is shown in coolercontrol"
+  />
+</p>
+
+Rename the profile appropriately, i.e. _CPU Profile_ for a profile that will be used for cooling the CPU. 
+
+Next, edit the profile in the top right of the screen to choose the type of profile. This guide will focus on using a graph for the profile.
+
+<p align="center">  
+  <img 
+    src="tutorial/graph.jpeg" 
+    alt="the profile type selection menu is shown in CoolerControl"
+  />
+</p>
+
+Next, select a temperature sensor source for the profile. Since this example is for the CPU, this profile will use the CPU Temp Package Id 0.
+
+<p align="center">  
+  <img 
+    src="tutorial/cputemp.jpeg" 
+    alt="the temperature sensor selection menu is shown in CoolerControl"
+  />
+</p>
+
+CoolerControl by default applies a simple graph that increases the fan speed between 20°C to 100°C. 
+
+Next, apply the profile to a fan. Select an appropriate fan and change the profile in the top right from _Default Profile_ to the profile you created.
+
+<p align="center">  
+  <img 
+    src="tutorial/cpuprofile.jpeg" 
+    alt="the fan profile selection menu is shown in CoolerControl"
+  />
+</p>
+
+After saving, the fan speed should now follow the curve set in the profile. Return to the profile and adjust the points on the graph until it fits the server's cooling needs. It is also possible to have a fan not run until a particular temperature is hit.
+
+### Combining sensors to create a custom sensor
+
+CoolerControl only allows one sensor to be set per profile, but it is possible to combine sensors to create one custom sensor. In this tutorial, the average of multiple hard drive temperatures will be combined into a custom sensor
+
+First, select the _Add Custom Sensor_ button next to Custom Sensors, found above the devices and sensors.
+
+<p align="center">  
+  <img 
+    src="tutorial/addcustomsensor.jpeg" 
+    alt="the add custom sensor button is seen in CoolerControl"
+  />
+</p>
+
+Next, to make a sensor that is based on the averages of these temperatures, select _Avg_ under _Mix Function._ Depending on how your hard drives are organized, it may be better to have the _Mix Function_ be based on _Max_, which will use the sensor that has the highest temperature.
+
+<p align="center">  
+  <img 
+    src="tutorial/mixfunction.jpeg" 
+    alt="the mix function options are seen in the custom sensors menu in CoolerControl"
+    width="700"
+  />
+</p>
+
+Finally, under _Temp Sources_ select your sensors that will be used for this custom sensor, and hit _Save Sensor_ in the top left. After hitting apply, CoolerControl will do a quick reboot to make the new sensor.
+
+<p align="center">  
+  <img 
+    src="tutorial/hddtemps.jpeg" 
+    alt="the sensor options are seen in the custom sensors menu in CoolerControl"
+  />
+</p>
+
+You can then use this sensor in a new profile.
