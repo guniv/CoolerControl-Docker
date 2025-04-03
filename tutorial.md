@@ -9,6 +9,8 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - [Confirm your fans are visible to Unraid](#confirm-your-fans-are-visible-to-unraid)
   - [Nvidia GPU support](#nvidia-gpu-support)
 - [Initial CoolerControl setup](#initial-coolercontrol-setup)
+  - [Adding Nvidia GPUs](#adding-nvidia-gpus)
+  - [Privileged mode](#privileged-mode)
 - [Checking your devices in CoolerControl](#checking-your-devices-in-coolercontrol)
 - [Configuring CoolerControl](#configuring-coolercontrol)
 
@@ -63,20 +65,60 @@ To add Nvidia GPUs to CoolerControl, the Nvidia-Driver plugin from Community App
 
 If these are installed, Nvidia GPUs will be able to show up in CoolerControl. See the [Nvidia section below](#adding-nvidia-gpus) for information on how to set this up.
 
-
 ## Initial CoolerControl setup
 
-HWMon
-file mount
-port
-nvidia
-privileged mode
+The Unraid template has three settings by default: the configuration storage, the WebUI port, and read-only access to hwmon on your Unraid system.
+
+<p align="center">  
+  <img 
+    src="tutorial/template.jpeg" 
+    alt="in the Unraid template, the CoolerControl configuration, WebUI port, and hwmon are all set to their default values"
+    width="700" 
+  />
+</p>
+
+The CoolerControl configuration host path can be changed to store it somewhere else if needed, and the port can be changed if it conflicts with another container.
+
+### Adding Nvidia GPUs
+
+To add Nvidia GPUs to CoolerControl, change "Basic View" to "Advanced view" in the top right of the "Add Container" or "Update Container" page when configuring the container.
+
+<p align="center">  
+  <img 
+    src="tutorial/advancedview.jpeg" 
+    alt="showing where advanced view and basic view are"
+    width="700" 
+  />
+</p>
+
+Next, edit the "Extra Parameters" section to add ```--runtime=nvidia --gpus=all```.
+
+<p align="center">  
+  <img 
+    src="tutorial/extraparameters.jpeg" 
+    alt="extra parameters is edited to include --runtime=nvidia --gpus=all"
+    width="700" 
+  />
+</p>
+
+### Privileged mode
+
+Finally, while following this tutorial and performing initial setup on the container, run it in privileged mode.
+
+<p align="center">  
+  <img 
+    src="tutorial/privileged.jpeg" 
+    alt="extra parameters is edited to include --runtime=nvidia --gpus=all"
+    width="700" 
+  />
+</p>
 
 ## Checking your devices in CoolerControl
 
 check devices for hwmon
 any "controllable" devices need to be added
 any non-hwmon devices need to be added
+remove privileged mode and check fans
 
 ## Configuring CoolerControl
 
