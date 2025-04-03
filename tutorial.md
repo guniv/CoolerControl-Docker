@@ -12,8 +12,11 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - [Adding Nvidia GPUs](#adding-nvidia-gpus)
   - [Privileged mode](#privileged-mode)
 - [Checking devices in CoolerControl](#checking-devices-in-coolercontrol)
+  - [Checking devices for hwmon](#checking-devices-for-hwmon)
+  - [Example: adding an LED controller](#example-adding-an-led-controller)
+  - [Example: adding fan controls](#example-adding-fan-controls)
+  - [Finalizing device setup](#finalizing-device-setup)
 - [Configuring CoolerControl](#configuring-coolercontrol)
-
 
 ## Prerequisites
 
@@ -21,9 +24,9 @@ There is some setup required to get the full functionality of CoolerControl on U
 
 ### Enabling hard drive temperature reporting
 
-CoolerControl relies on the [Linux Hardware Monitoring kernel API](https://docs.kernel.org/hwmon/hwmon-kernel-api.html) (hwmon) to collect information from the system like sensor temperatures. By default, SATA devices like hard drives do not have their temperatures reported to hwmon. Enabling it in Unraid is simple: open the Unraid terminal and enter the command ```sudo modprobe drivetemp```. 
+CoolerControl relies on the [Linux Hardware Monitoring kernel API](https://docs.kernel.org/hwmon/hwmon-kernel-api.html) (hwmon) to collect information like sensor temperatures from the system. By default, SATA devices like hard drives do not have their temperatures reported to hwmon. Enabling this in Unraid is simple: open the Unraid terminal and enter the command `sudo modprobe drivetemp`. 
 
-This command has to be run every time the system is booted. To do this, use the User Scripts plugin from Andrew Zawadzki. In User Scripts, add a new script, and then edit the script to include that command:
+This command has to be run every time the system is rebooted. To do this, use the User Scripts plugin from Andrew Zawadzki. In User Scripts, add a new script, and then edit the script to include that command:
 
 <p align="center">  
   <img 
@@ -45,7 +48,7 @@ Save the script, and then edit the schedule for the script to run on first array
 
 ### Confirm fans are visible to Unraid
 
-To check if fans are already visible to Unraid, install the Dynamix System Temp plugin from Bergware. In the settings for this plugin, it is possible to select which fan is shown on the Unraid dashboard footer.
+To check if fans are already visible to Unraid, install the __Dynamix System Temp plugin from Bergware.__ In the settings for this plugin, it is possible to select which fan is shown on the Unraid dashboard footer.
 
 <p align="center">  
   <img 
@@ -55,13 +58,13 @@ To check if fans are already visible to Unraid, install the Dynamix System Temp 
   />
 </p>
 
-If no fans are available under the ```Array fan speed``` menu, it means the system fans are not currently visible to Unraid.
+If no fans are available under the _Array fan speed_ menu, it means the system fans are not currently visible to Unraid.
 
-A potential fix for this is drivers from Community Applications. The ITE IT87 Driver from ich777 has worked for others in making the fans available. The Nuvoton NCT6687 Driver from ich777 may also work.
+A potential fix for this is drivers from Community Applications. The __ITE IT87 Driver from ich777__ has worked for others in making the fans available. The __Nuvoton NCT6687 Driver from ich777__ may also work.
 
 ### Nvidia GPU support
 
-To add Nvidia GPUs to CoolerControl, the Nvidia-Driver plugin from Community Applications needs to be installed and the plugin must be used to install a Nvidia driver on the system.
+To add Nvidia GPUs to CoolerControl, the __Nvidia-Driver plugin__ from Community Applications needs to be installed and the plugin must be used to install a Nvidia driver on the system.
 
 If these are installed, Nvidia GPUs will be able to show up in CoolerControl. See the [Nvidia section below](#adding-nvidia-gpus) for information on how to set this up.
 
@@ -81,7 +84,7 @@ The CoolerControl configuration host path can be changed to store it somewhere e
 
 ### Adding Nvidia GPUs
 
-To add Nvidia GPUs to CoolerControl, change ```Basic View``` to ```Advanced view``` in the top right of the ```Add Container``` or ```Update Container``` page when configuring the container.
+To add Nvidia GPUs to CoolerControl, change _Basic View_ to _Advanced view_ in the top right of the _Add Container_ or _Update Container_ page when configuring the container.
 
 <p align="center">  
   <img 
@@ -91,7 +94,7 @@ To add Nvidia GPUs to CoolerControl, change ```Basic View``` to ```Advanced view
   />
 </p>
 
-Next, edit the ```Extra Parameters``` section to add ```--runtime=nvidia --gpus=all```.
+Next, edit the _Extra Parameters_ section to add `--runtime=nvidia --gpus=all`.
 
 <p align="center">  
   <img 
@@ -103,7 +106,7 @@ Next, edit the ```Extra Parameters``` section to add ```--runtime=nvidia --gpus=
 
 ### Privileged mode
 
-Finally, while following this tutorial and performing initial setup on the container, run it in privileged mode. This gives the container unrestricted access to the Unraid system, which will allow Coolercontrol to discover any available devices on the system. 
+Finally, while following this tutorial and performing initial setup on the container, run it in privileged mode. This gives the container unrestricted access to the Unraid system, which will allow CoolerControl to discover any available devices on the system. 
 
 <p align="center">  
   <img 
@@ -120,7 +123,7 @@ Hit apply to download and run the container.
 
 ## Checking devices in CoolerControl
 
-Now that CoolerControl is running, go to Unraid's Docker tab and click on the icon next to CoolerControl, and click on WebUI to open CoolerControl itself.
+Now that CoolerControl is running, go to Unraid's Docker tab and click on the icon next to CoolerControl, and click on _WebUI_ to open CoolerControl itself.
 
 <p align="center">  
   <img 
@@ -150,7 +153,7 @@ After this introduction, check the devices that are available in CoolerControl. 
 
 ### Checking devices for hwmon
 
-Check each device to see if it's being exposed by hwmon, which is already mounted to the container. The CPU sensors should be provided by hwmon. Click on the ⓘ next to the device (labeled ```Device Details```) and look at the locations.
+Check each device to see if it's being exposed by hwmon, which is already mounted to the container. The CPU sensors should be provided by hwmon. Click on the ⓘ next to the device (labeled _Device Details_) and look at the locations.
 
 <p align="center">  
   <img 
@@ -160,9 +163,9 @@ Check each device to see if it's being exposed by hwmon, which is already mounte
   />
 </p>
 
-The first location is ```/sys/class/hwmon/hwmon2``` which is being mounted to the container under hwmon. This means that this device is already being provided to the container regardless of whether privilged mode is on or not.
+The first location is `/sys/class/hwmon/hwmon2` which is being mounted to the container under hwmon. This means that this device is already being provided to the container regardless of whether privilged mode is on or not.
 
-Check each device and see if it is being provided by hwmon by checking under Locations.
+Check each device and see if it is being provided by hwmon by checking under _Locations_.
 
 ### Example: adding an LED controller
 
@@ -176,7 +179,7 @@ In this example system, CoolerControl is also discovering an LED controller buil
   />
 </p>
 
-Under locations, the LED controller is identified at ```/dev/hidraw4```. Because it is not provided by hwmon, it needs to be manually added to the container in Unraid. Return to the docker tab of Unraid and edit the container.
+Under locations, the LED controller is identified at `/dev/hidraw4`. Because it is not provided by hwmon, it needs to be manually added to the container in Unraid. Return to the docker tab of Unraid and edit the container.
 
 <p align="center">  
   <img 
@@ -185,7 +188,7 @@ Under locations, the LED controller is identified at ```/dev/hidraw4```. Because
   />
 </p>
 
-In the Update Container screen, scroll to the bottom and select ```Add another Path, Port, Variable, Label, or Device.``` In the ```Add Configuration``` menu, set the ```Config Type``` to device, because the device is located in ```/dev```, which means it is a device. Add the path listed in CoolerControl, and name the device accordingly.
+In the Update Container screen, scroll to the bottom and select _Add another Path, Port, Variable, Label, or Device._ In the _Add Configuration_ menu, set the _Config Type_ to device, because the device is located in `/dev`, which means it is a device. Add the path listed in CoolerControl, and name the device accordingly.
 
 <p align="center">  
   <img 
@@ -199,7 +202,7 @@ Save this configuration and apply it to the container. This will update the cont
 
 ### Example: adding fan controls
 
-On CoolerControl, find the device that is exposing the fans to the container. In this example, the fans are exposed under ```it8689```. Notice that the locations does include hwmon.
+On CoolerControl, find the device that is exposing the fans to the container. In this example, the fans are exposed under _it8689_. Notice that the locations does include hwmon.
 
 <p align="center">  
   <img 
@@ -218,7 +221,7 @@ However, because hwmon is mounted as read-only in the container, the fan speed c
   />
 </p>
 
-In the ```Update Container``` screen, scroll to the bottom and select ```Add another Path, Port, Variable, Label, or Device.``` In the ```Add Configuration``` menu, keep the ```Config Type``` on path. Add the second path listed in CoolerControl's locations, and name the device accordingly.
+In the _Update Container_ screen, scroll to the bottom and select _Add another Path, Port, Variable, Label, or Device._ In the _Add Configuration_ menu, keep the _Config Type_ on path. Add the second path listed in CoolerControl's locations, and name the device accordingly.
 
 <p align="center">  
   <img 
@@ -232,7 +235,7 @@ Save this configuration and apply it to the container. This will update the cont
 
 ### Finalizing device setup
 
-Once the devices have been checked and set up in the Unraid docker ```Update container``` screen, edit the container a final time to turn off privileged mode. Once privileged mode is off, open CoolerControl and check that all of the devices still appear, and that devices like fans can be controlled. Fans can be checked by setting them to manual and adjusting the fan speed.
+Once the devices have been checked and set up in the Unraid _Update container_ screen, edit the container a final time to turn off privileged mode. Once privileged mode is off, open CoolerControl and check that all of the devices still appear, and that devices like fans can be controlled. Fans can be checked by setting them to manual and adjusting the fan speed.
 
 <p align="center">  
   <img 
