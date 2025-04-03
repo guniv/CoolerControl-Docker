@@ -126,7 +126,6 @@ Now that CoolerControl is running, go to Unraid's Docker tab and click on the ic
   <img 
     src="tutorial/webui.jpeg" 
     alt="the webui button is shown after clicking on the container"
-    width="700" 
   />
 </p>
 
@@ -146,7 +145,6 @@ After this introduction, check the devices that are available in CoolerControl. 
   <img 
     src="tutorial/sensors.jpeg" 
     alt="coolercontrol shows sensors from an i5-14600k and a GTX 1070"
-    width="700" 
   />
 </p>
 
@@ -183,8 +181,7 @@ Under locations, the LED controller is identified at ```/dev/hidraw4```. Because
 <p align="center">  
   <img 
     src="tutorial/edit.jpeg" 
-    alt="edit is highlighted for CoolerControl in the Unraid docker menu"
-    width="700" 
+    alt="edit is highlighted for CoolerControl in the Unraid docker menu" 
   />
 </p>
 
@@ -218,7 +215,6 @@ However, because hwmon is mounted as read-only in the container, the fan speed c
   <img 
     src="tutorial/edit.jpeg" 
     alt="edit is highlighted for CoolerControl in the Unraid docker menu"
-    width="700" 
   />
 </p>
 
