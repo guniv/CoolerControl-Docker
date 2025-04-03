@@ -8,7 +8,7 @@ There is some setup required to get the full functionality of CoolerControl on U
 
 ### Enabling hard drive temperature reporting
 
-CoolerControl relies on HWMon to collect information from the system like sensor temperatures. By default, SATA devices like hard drives do not have their temperatures reported to HWMon. Enabling it in Unraid is simple: open the Unraid terminal and enter the command ```sudo modprobe drivetemp```. 
+CoolerControl relies on the [Linux Hardware Monitoring kernel API](https://docs.kernel.org/hwmon/hwmon-kernel-api.html) (hwmon) to collect information from the system like sensor temperatures. By default, SATA devices like hard drives do not have their temperatures reported to hwmon. Enabling it in Unraid is simple: open the Unraid terminal and enter the command ```sudo modprobe drivetemp```. 
 
 This command has to be run every time the system is booted. To do this, use the User Scripts plugin from Andrew Zawadzki. In User Scripts, add a new script, and then edit the script to include that command:
 
@@ -50,7 +50,7 @@ A potential fix for this is drivers from Community Applications. The ITE IT87 Dr
 
 To add Nvidia GPUs to CoolerControl, the Nvidia-Driver plugin from Community Applications needs to be installed and the plugin must be used to install a Nvidia driver on the system.
 
-If these are installed, Nvidia GPUs will be able to show up in CoolerControl. See the next section for information on how to set this up. (ADD LINK HERE?)
+If these are installed, Nvidia GPUs will be able to show up in CoolerControl. See the [Nvidia section below](#adding-nvidia-gpus) for information on how to set this up.
 
 
 ## Inital CoolerControl setup
