@@ -73,6 +73,8 @@ If these are installed, Nvidia GPUs will be able to show up in CoolerControl. Se
 
 ## Initial CoolerControl setup
 
+Search for _CoolerControl_ in Community Applications and select _Install._
+
 The Unraid template has three settings by default: the configuration storage, the WebUI port, and read-only access to hwmon on the Unraid system.
 
 <p align="center">  
