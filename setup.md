@@ -109,7 +109,10 @@ Next, edit the _Extra Parameters_ section to add `--runtime=nvidia --gpus=all`.
 
 ### Privileged mode
 
-Finally, while following this tutorial and performing initial setup on the container, run it in privileged mode. This gives the container unrestricted access to the Unraid system, which will allow CoolerControl to discover any available devices on the system. 
+> [!IMPORTANT]  
+> It is not recommended to leave the container in privileged mode, and it should be disabled after setup of the container has been finished.
+
+While following this tutorial and while performing initial setup on the container, run it in privileged mode. This gives the container unrestricted access to the Unraid system, which will allow CoolerControl to discover any available devices on the system. 
 
 <p align="center">  
   <img 
@@ -120,9 +123,6 @@ Finally, while following this tutorial and performing initial setup on the conta
 </p>
 
 Hit apply to download and run the container.
-
-> [!IMPORTANT]  
-> It is not recommended to leave the container in privileged mode, and it should be disabled after setup of the container has been finished.
 
 ## Checking devices in CoolerControl
 
