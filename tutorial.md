@@ -17,6 +17,9 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - [Example: adding fan controls](#example-adding-fan-controls)
   - [Finalizing device setup](#finalizing-device-setup)
 - [Configuring CoolerControl](#configuring-coolercontrol)
+  - [Identify and name devices](#identify-and-name-devices)
+  - [Setting up a profile](#setting-up-a-profile)
+  - [Combining sensors to create a custom sensor](#combining-sensors-to-create-a-custom-sensor)
 
 ## Prerequisites
 
@@ -331,7 +334,7 @@ Next, to make a sensor that is based on the averages of these temperatures, sele
   />
 </p>
 
-Finally, under _Temp Sources_ select your sensors that will be used for this custom sensor, and hit _Save Sensor_ in the top left. After hitting apply, CoolerControl will do a quick reboot to make the new sensor.
+Finally, under _Temp Sources_ select your sensors that will be used for this custom sensor, and hit _Save Sensor_ in the top left. CoolerControl will do a quick reboot to make the new sensor.
 
 <p align="center">  
   <img 
