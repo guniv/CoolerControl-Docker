@@ -23,7 +23,7 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
 
 ## Prerequisites
 
-There is some setup required to get the full functionality of CoolerControl on Unraid. Community Applications needs to be installed on the server for CoolerControl and this setup.
+There is some setup required to get the full functionality of CoolerControl on Unraid.
 
 ### Enabling hard drive temperature reporting
 
@@ -191,7 +191,7 @@ Under locations, the LED controller is identified at `/dev/hidraw4`. Because it 
   />
 </p>
 
-In the Update Container screen, scroll to the bottom and select _Add another Path, Port, Variable, Label, or Device._ In the _Add Configuration_ menu, set the _Config Type_ to device, because the device is located in `/dev`, which means it is a device. Add the path listed in CoolerControl, and name the device accordingly.
+In the Update Container screen, scroll to the bottom and select _Add another Path, Port, Variable, Label, or Device._ In the _Add Configuration_ menu, set the _Config Type_ to _Device_, because the device is located in `/dev`, which means it is a device. Add the path listed in CoolerControl, and name the device accordingly.
 
 <p align="center">  
   <img 
@@ -224,7 +224,7 @@ However, because hwmon is mounted as read-only in the container, the fan speed c
   />
 </p>
 
-In the _Update Container_ screen, scroll to the bottom and select _Add another Path, Port, Variable, Label, or Device._ In the _Add Configuration_ menu, keep the _Config Type_ on path. Add the second path listed in CoolerControl's locations, and name the device accordingly.
+In the _Update Container_ screen, scroll to the bottom and select _Add another Path, Port, Variable, Label, or Device._ In the _Add Configuration_ menu, keep the _Config Type_ on _Path_. Add the second path listed in CoolerControl's locations, and name the device accordingly.
 
 <p align="center">  
   <img 
@@ -300,7 +300,7 @@ Next, select a temperature sensor source for the profile. Since this example is 
 
 CoolerControl by default applies a simple graph that increases the fan speed between 20°C to 100°C. 
 
-Next, apply the profile to a fan. Select an appropriate fan and change the profile in the top right from _Default Profile_ to the profile you created.
+Next, apply the profile to a fan. Select an appropriate fan and change the profile in the top right from _Default Profile_ to the profile created.
 
 <p align="center">  
   <img 
@@ -324,7 +324,7 @@ First, select the _Add Custom Sensor_ button next to Custom Sensors, found above
   />
 </p>
 
-Next, to make a sensor that is based on the averages of these temperatures, select _Avg_ under _Mix Function._ Depending on how your hard drives are organized, it may be better to have the _Mix Function_ be based on _Max_, which will use the sensor that has the highest temperature.
+Next, to make a sensor that is based on the averages of these temperatures, select _Avg_ under _Mix Function._ Depending on how the system's hard drives are physically organized, it may be better to have the _Mix Function_ be based on _Max_, which will use the sensor that has the highest temperature.
 
 <p align="center">  
   <img 
@@ -334,7 +334,7 @@ Next, to make a sensor that is based on the averages of these temperatures, sele
   />
 </p>
 
-Finally, under _Temp Sources_ select your sensors that will be used for this custom sensor, and hit _Save Sensor_ in the top left. CoolerControl will do a quick reboot to make the new sensor.
+Finally, under _Temp Sources_ select sensors that will be used for this custom sensor, and hit _Save Sensor_ in the top left. CoolerControl will do a quick reboot to make the new sensor.
 
 <p align="center">  
   <img 
@@ -343,4 +343,4 @@ Finally, under _Temp Sources_ select your sensors that will be used for this cus
   />
 </p>
 
-You can then use this sensor in a new profile.
+This sensor can now be used in a profile.
