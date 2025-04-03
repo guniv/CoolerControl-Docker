@@ -2,6 +2,17 @@
 
 Setting up CoolerControl in Unraid is fairly straightforward but does require a little manual work to make sure it's working correctly. This tutorial will walk through setting it up.
 
+## Table of Contents
+
+- [Prerequisites](#prerequisites)
+  - [Enabling hard drive temperature reporting](#enabling-hard-drive-temperature-reporting)
+  - [Confirm your fans are visible to Unraid](#confirm-your-fans-are-visible-to-unraid)
+  - [Nvidia GPU support](#nvidia-gpu-support)
+- [Initial CoolerControl setup](#initial-coolercontrol-setup)
+- [Checking your devices in CoolerControl](#checking-your-devices-in-coolercontrol)
+- [Configuring CoolerControl](#configuring-coolercontrol)
+
+
 ## Prerequisites
 
 There is some setup required to get the full functionality of CoolerControl on Unraid. Community Applications needs to be installed on the server for CoolerControl and this setup.
@@ -53,7 +64,7 @@ To add Nvidia GPUs to CoolerControl, the Nvidia-Driver plugin from Community App
 If these are installed, Nvidia GPUs will be able to show up in CoolerControl. See the [Nvidia section below](#adding-nvidia-gpus) for information on how to set this up.
 
 
-## Inital CoolerControl setup
+## Initial CoolerControl setup
 
 HWMon
 file mount
