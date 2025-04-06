@@ -5,10 +5,13 @@ permissions:
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Check GitLab releases hourly
+    - cron: '0 * * * *'  # Existing scheduled trigger
   push:
     branches:
       - main
+    paths:               # Added paths filter
+      - 'Dockerfile'
+      - 'entrypoint.sh'
 
 jobs:
   check-and-build:
