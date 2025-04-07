@@ -22,6 +22,7 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - [Combining sensors to create a custom sensor](#combining-sensors-to-create-a-custom-sensor)
 - [Troubleshooting](#troubleshooting)
   - ["Unable to set PWM Value" and/or fan not staying on curve](#unable-to-set-pwm-value-andor-fan-not-staying-on-curve)
+  - [Could not connect to DBUS](#could-not-connect-to-dbus)
 
 ## Prerequisites
 
@@ -354,3 +355,7 @@ This sensor can now be used in a profile.
 ### "Unable to set PWM value" and/or fan not staying on curve
 
 If CoolerControl is encountering this error or the fans won't stay at a speed to match the set curve, the system's BIOS settings may be interfering with CoolerControl. The fix will vary from BIOS to BIOS but it is recommended to set the system fans at full speed in the system BIOS.
+
+### Could not connect to DBUS
+
+The "Could not connect to DBUS" error is normal when running in a Docker container. This feature is normally used by CoolerControl to check whether the system is sleeping, which will not happen with a Docker container. This error can be safely ignored.
