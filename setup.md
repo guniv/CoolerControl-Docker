@@ -353,4 +353,4 @@ This sensor can now be used in a profile.
 
 ### "Unable to set PWM value" and/or fan not staying on curve
 
-If CoolerControl is encountering this error or the fans won't stay at a speed to match the set curve, the system's BIOS settings may be interfering with CoolerControl. The fix will vary from BIOS to BIOS but it is recommended to set the system fans at full speed.
+If CoolerControl is encountering this error or the fans won't stay at a speed to match the set curve, the system's BIOS settings may be interfering with CoolerControl. The fix will vary from BIOS to BIOS but it is recommended to set the system fans at full speed in the system BIOS.
