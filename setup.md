@@ -21,7 +21,7 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - [Setting up a profile](#setting-up-a-profile)
   - [Combining sensors to create a custom sensor](#combining-sensors-to-create-a-custom-sensor)
 - [Troubleshooting](#troubleshooting)
-  - ["Unable to set PWM Value" and/or fan not staying on curve](#-unable-to-set-pwm-value-andor-fan-not-staying-on-curve)
+  - ["Unable to set PWM Value" and/or fan not staying on curve](#unable-to-set-pwm-value-andor-fan-not-staying-on-curve)
 
 ## Prerequisites
 
