@@ -20,6 +20,8 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - [Identify and name devices](#identify-and-name-devices)
   - [Setting up a profile](#setting-up-a-profile)
   - [Combining sensors to create a custom sensor](#combining-sensors-to-create-a-custom-sensor)
+- [Troubleshooting](#troubleshooting)
+  - ["Unable to set PWM Value" and/or fan not staying on curve](#-unable-to-set-pwm-value-and-or-fan-not-staying-on-curve)
 
 ## Prerequisites
 
@@ -346,3 +348,9 @@ Finally, under _Temp Sources_ select sensors that will be used for this custom s
 </p>
 
 This sensor can now be used in a profile.
+
+## Troubleshooting
+
+### "Unable to set PWM value" and/or fan not staying on curve
+
+If CoolerControl is encountering this error or the fans won't stay at a speed to match the set curve, the system's BIOS settings may be interfering with CoolerControl. The fix will vary from BIOS to BIOS but it is recommended to set the system fans at full speed.
