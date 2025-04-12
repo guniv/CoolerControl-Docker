@@ -1,22 +1,23 @@
 name: Build and Release Docker Image
-permissions:
-  contents: write  # Needed for creating releases
-  packages: write  # Needed for pushing Docker images
 
 on:
-  schedule:
-    - cron: '30 15 * * *' #Check once a day for new versions
   push:
     branches:
       - main
     paths:
+      - 'new_version.txt'  # Trigger when new upstream version detected
       - 'Dockerfile'
       - 'entrypoint.sh'
+  workflow_dispatch:  # Allow manual execution
+
+permissions:
+  contents: write
+  packages: write
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: guniv/coolercontrol-docker
-  PROJECT_ID: 30707566  # Your GitLab project ID
+  PROJECT_ID: 30707566  # GitLab project ID
 
 jobs:
   build-and-release:
@@ -25,23 +26,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Needed for full commit history
+          fetch-depth: 0  # Full commit history for changelog
 
-      - name: Version Setup
+      - name: Determine Version and Build Number
         id: version
         env:
-          GH_TOKEN: ${{ github.token }}  # Use automatic token
+          GH_TOKEN: ${{ github.token }}
         run: |
-          # Get upstream version
-          if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            UPSTREAM_TAG=$(curl -s "https://gitlab.com/api/v4/projects/$PROJECT_ID/repository/tags" | jq -r '.[0].name')
+          # Check for new upstream version trigger
+          if [[ -f new_version.txt ]]; then
+            UPSTREAM_TAG=$(cat new_version.txt)
             IS_NEW_UPSTREAM=true
+            # Cleanup trigger file
+            rm new_version.txt
+            git commit -am "Remove version trigger file" || true
+            git push origin main || true
           else
             UPSTREAM_TAG=$(cat last_release.txt || echo "v0.0.0")
             IS_NEW_UPSTREAM=false
           fi
 
-          # Get Docker build number
+          # Calculate Docker build number
           DOCKER_BUILD=1
           RELEASES=$(gh release list --exclude-drafts --exclude-pre-releases -L 50)
           while grep -q "^${UPSTREAM_TAG}-docker${DOCKER_BUILD}\b" <<< "$RELEASES"; do
@@ -52,7 +57,6 @@ jobs:
           echo "DOCKER_BUILD=$DOCKER_BUILD" >> $GITHUB_OUTPUT
           echo "IS_NEW_UPSTREAM=$IS_NEW_UPSTREAM" >> $GITHUB_OUTPUT
 
-      # Build and tag with appropriate versions
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
@@ -65,21 +69,21 @@ jobs:
           cache-from: type=local,src=~/.cache/docker
           cache-to: type=local,dest=~/.cache/docker
 
-      # Create GitHub Release with notes
       - name: Generate Release Notes
         id: release-notes
         run: |
           NOTES_FILE="release_notes.md"
           
-          # Upstream release notes (for scheduled builds)
+          # Get upstream release notes if new version
           if [[ "${{ steps.version.outputs.IS_NEW_UPSTREAM }}" == "true" ]]; then
             curl -s --header "PRIVATE-TOKEN: ${{ secrets.GL_PAT }}" \
-              "https://gitlab.com/api/v4/projects/30707566/releases/${{ steps.version.outputs.UPSTREAM_VERSION }}" \
+              "https://gitlab.com/api/v4/projects/$PROJECT_ID/releases/${{ steps.version.outputs.UPSTREAM_VERSION }}" \
               | jq -r '.description' > upstream_notes.md
           fi
 
-          # Docker changes (always included)
-          git log --pretty=format:"- %s" --since="$(git log -1 --format=%cd --date=iso-strict origin/main)" -- Dockerfile entrypoint.sh > docker_changes.md
+          # Get Dockerfile changes since last build
+          SINCE_DATE=$(git log -1 --format=%cd --date=iso-strict origin/main)
+          git log --pretty=format:"- %s" --since="$SINCE_DATE" -- Dockerfile entrypoint.sh > docker_changes.md
 
           # Combine notes
           echo "# Release Notes" > $NOTES_FILE
@@ -98,7 +102,6 @@ jobs:
           draft: false
           prerelease: false
 
-      # Update tracker for scheduled builds
       - name: Update Version Tracker
         if: steps.version.outputs.IS_NEW_UPSTREAM == 'true'
         run: |
