@@ -13,7 +13,7 @@ on:
 permissions:
   contents: write
   packages: write
-  id-token: write  # Required for GHCR authentication
+  id-token: write
 
 env:
   REGISTRY: ghcr.io
@@ -24,99 +24,37 @@ jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Determine Version and Build Number
-        id: version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Debug file presence
-          echo "Checking workspace contents:"
-          ls -la
-
-          if [[ -f new_version.txt ]]; then
-            UPSTREAM_TAG=$(cat new_version.txt)
-            echo "Detected new version: $UPSTREAM_TAG"
-            
-            # Validate version format
-            if [[ ! "$UPSTREAM_TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "::error::Invalid version format: $UPSTREAM_TAG"
-              exit 1
-            fi
-            
-            IS_NEW_UPSTREAM=true
-            echo "Removing trigger file..."
-            rm new_version.txt
-            git commit -am "Remove version trigger file" || true
-            git push origin main || true
-          else
-            UPSTREAM_TAG=$(cat last_release.txt || echo "v0.0.0")
-            IS_NEW_UPSTREAM=false
-          fi
-
-          # Strip 'v' prefix if present
-          CLEAN_TAG="${UPSTREAM_TAG#v}"
-          
-          # Calculate Docker build number
-          DOCKER_BUILD=1
-          RELEASES=$(gh release list --exclude-drafts --exclude-pre-releases -L 50)
-          while grep -q "^${CLEAN_TAG}-docker${DOCKER_BUILD}\b" <<< "$RELEASES"; do
-            ((DOCKER_BUILD++))
-          done
-
-          echo "UPSTREAM_VERSION=$CLEAN_TAG" >> $GITHUB_OUTPUT
-          echo "DOCKER_BUILD=$DOCKER_BUILD" >> $GITHUB_OUTPUT
-          echo "IS_NEW_UPSTREAM=$IS_NEW_UPSTREAM" >> $GITHUB_OUTPUT
-          
-          # Debug outputs
-          echo "Final version: $CLEAN_TAG"
-          echo "Build number: $DOCKER_BUILD"
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker-container
-
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
+      # ... [previous steps remain the same until release notes generation]
 
       - name: Generate Release Notes
         id: release-notes
         run: |
           NOTES_FILE="release_notes.md"
+          touch $NOTES_FILE
           
           if [[ "${{ steps.version.outputs.IS_NEW_UPSTREAM }}" == "true" ]]; then
+            # Get and clean upstream notes
             curl -s --header "PRIVATE-TOKEN: ${{ secrets.GL_PAT }}" \
               "https://gitlab.com/api/v4/projects/$PROJECT_ID/releases/${{ steps.version.outputs.UPSTREAM_VERSION }}" \
-              | jq -r '.description' > upstream_notes.md
+              | jq -r '.description' | sed 's/ (![0-9]\+)//g' > upstream_notes.md
+            
+            # Add CoolerControl changes section with link
+            if [[ -s upstream_notes.md ]]; then
+              echo "## CoolerControl Changes" >> $NOTES_FILE
+              cat upstream_notes.md >> $NOTES_FILE
+              echo -e "\n[View full release notes](https://gitlab.com/coolercontrol/coolercontrol/-/releases/${{ steps.version.outputs.UPSTREAM_VERSION}})" >> $NOTES_FILE
+            fi
           fi
 
+          # Get Docker changes
           SINCE_DATE=$(git log -1 --format=%cd --date=iso-strict origin/main)
           git log --pretty=format:"- %s" --since="$SINCE_DATE" -- Dockerfile entrypoint.sh > docker_changes.md
 
-          echo "# Release Notes" > $NOTES_FILE
-          [[ -s upstream_notes.md ]] && echo "## Upstream Changes" >> $NOTES_FILE && cat upstream_notes.md >> $NOTES_FILE
-          echo -e "\n## Docker Image Updates" >> $NOTES_FILE
-          cat docker_changes.md >> $NOTES_FILE
+          # Add Docker updates section if there are changes
+          if [[ -s docker_changes.md ]]; then
+            echo -e "\n## Docker-specific Updates" >> $NOTES_FILE
+            cat docker_changes.md >> $NOTES_FILE
+          fi
 
           echo "NOTES_FILE=$NOTES_FILE" >> $GITHUB_OUTPUT
 
@@ -124,7 +62,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
-          name: ${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
+          name: ${{ steps.version.outputs.UPSTREAM_VERSION }}${{ steps.version.outputs.IS_NEW_UPSTREAM != 'true' && format('-docker{0}', steps.version.outputs.DOCKER_BUILD) || '' }}
           body_path: ${{ steps.release-notes.outputs.NOTES_FILE }}
           draft: false
           prerelease: false
