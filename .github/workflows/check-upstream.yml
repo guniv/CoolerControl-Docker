@@ -1,5 +1,10 @@
 name: Check Upstream Version
 
+permissions:
+  contents: write  # Required for pushing changes
+  pull-requests: write
+  issues: write
+  
 on:
   schedule:
     - cron: '30 15 * * *'  # Daily check
@@ -11,6 +16,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Get Latest Upstream Tag
         id: get-tag
@@ -45,13 +53,21 @@ jobs:
             echo "APPIMAGE_AVAILABLE=false" >> $GITHUB_OUTPUT
             exit 1
           fi
-
       - name: Create Version Check File
         if: steps.verify-appimage.outputs.APPIMAGE_AVAILABLE == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Add this line
         run: |
-          echo "${{ steps.get-tag.outputs.UPSTREAM_TAG }}" > new_version.txt
+          # Configure git with authentication
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
+          git remote set-url origin "https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git"
+          
+          # Create version file
+          echo "${{ steps.get-tag.outputs.UPSTREAM_TAG }}" > new_version.txt
+          
+          # Commit and push
           git add new_version.txt
           git commit -m "New upstream version detected: ${{ steps.get-tag.outputs.UPSTREAM_TAG }}"
-          git push origin main
+          git pull --rebase  # Ensure you're up to date
+          git push --force-with-lease origin main
