@@ -1,6 +1,10 @@
 name: Build and Release Docker Image
 
 on:
+  workflow_run:
+    workflows: ["Check Upstream Version"]  # Name of your first workflow
+    types:
+      - completed
   push:
     branches:
       - main
