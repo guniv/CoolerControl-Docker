@@ -22,12 +22,23 @@ jobs:
 
       - name: Verify AppImage Availability
         id: verify-appimage
+        env:
+          GL_PAT: ${{ secrets.GL_PAT }}  # Add authentication
         run: |
-          CC_VERSION=${{ steps.get-tag.outputs.UPSTREAM_TAG }}
+          CC_VERSION=${{ steps.get-tag.outputs.UPSTREAM_TAG}}
           URL="https://gitlab.com/coolercontrol/coolercontrol/-/releases/${CC_VERSION}/downloads/packages/CoolerControlD-x86_64.AppImage"
           
-          # Check HTTP status code
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          # Add required headers and follow redirects
+          STATUS_CODE=$(curl -sL \
+            -H "PRIVATE-TOKEN: $GL_PAT" \
+            -H "User-Agent: GitHub-Actions" \
+            -o /dev/null \
+            -w "%{http_code}" \
+            "$URL")
+          
+          echo "Debug - URL: $URL"  # Verify URL construction
+          echo "Debug - Status: $STATUS_CODE"  # See actual response
+          
           if [ "$STATUS_CODE" -eq 200 ]; then
             echo "APPIMAGE_AVAILABLE=true" >> $GITHUB_OUTPUT
           else
