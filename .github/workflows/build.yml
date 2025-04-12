@@ -1,14 +1,17 @@
 name: Build and Release Docker Image
 
 on:
+  workflow_run:
+    workflows: ["Check Upstream Version"]  # Name of your first workflow
+    types:
+      - completed
   push:
     branches:
       - main
     paths:
-      - 'new_version.txt'  # Trigger when new upstream version detected
       - 'Dockerfile'
       - 'entrypoint.sh'
-  workflow_dispatch:  # Allow manual execution
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -26,7 +29,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full commit history for changelog
+          fetch-depth: 0
+          # Add this to ensure latest changes are pulled
+          ref: ${{ github.ref }}
 
       - name: Determine Version and Build Number
         id: version
