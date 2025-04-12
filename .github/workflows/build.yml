@@ -61,7 +61,12 @@ jobs:
           echo "UPSTREAM_VERSION=$UPSTREAM_TAG" >> $GITHUB_OUTPUT
           echo "DOCKER_BUILD=$DOCKER_BUILD" >> $GITHUB_OUTPUT
           echo "IS_NEW_UPSTREAM=$IS_NEW_UPSTREAM" >> $GITHUB_OUTPUT
-
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          buildkitd-flags: --debug
+      
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
@@ -71,8 +76,8 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
-          cache-from: type=local,src=~/.cache/docker
-          cache-to: type=local,dest=~/.cache/docker
+          cache-from: type=local,src=.docker-cache
+          cache-to: type=local,dest=.docker-cache
 
       - name: Generate Release Notes
         id: release-notes
