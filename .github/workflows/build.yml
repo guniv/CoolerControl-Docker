@@ -1,14 +1,11 @@
 name: Build and Release Docker Image
 
 on:
-  workflow_run:
-    workflows: ["Check Upstream Version"]  # Name of your first workflow
-    types:
-      - completed
   push:
     branches:
       - main
     paths:
+      - 'new_version.txt'
       - 'Dockerfile'
       - 'entrypoint.sh'
   workflow_dispatch:
@@ -16,25 +13,70 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write  # Required for GHCR authentication
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: guniv/coolercontrol-docker
-  PROJECT_ID: 30707566  # GitLab project ID
+  PROJECT_ID: 30707566
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write  # Required for GHCR push
-      id-token: write  # Required for OIDC token exchange
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Add Docker login step
+      - name: Determine Version and Build Number
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Debug file presence
+          echo "Checking workspace contents:"
+          ls -la
+
+          if [[ -f new_version.txt ]]; then
+            UPSTREAM_TAG=$(cat new_version.txt)
+            echo "Detected new version: $UPSTREAM_TAG"
+            
+            # Validate version format
+            if [[ ! "$UPSTREAM_TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Invalid version format: $UPSTREAM_TAG"
+              exit 1
+            fi
+            
+            IS_NEW_UPSTREAM=true
+            echo "Removing trigger file..."
+            rm new_version.txt
+            git commit -am "Remove version trigger file" || true
+            git push origin main || true
+          else
+            UPSTREAM_TAG=$(cat last_release.txt || echo "v0.0.0")
+            IS_NEW_UPSTREAM=false
+          fi
+
+          # Strip 'v' prefix if present
+          CLEAN_TAG="${UPSTREAM_TAG#v}"
+          
+          # Calculate Docker build number
+          DOCKER_BUILD=1
+          RELEASES=$(gh release list --exclude-drafts --exclude-pre-releases -L 50)
+          while grep -q "^${CLEAN_TAG}-docker${DOCKER_BUILD}\b" <<< "$RELEASES"; do
+            ((DOCKER_BUILD++))
+          done
+
+          echo "UPSTREAM_VERSION=$CLEAN_TAG" >> $GITHUB_OUTPUT
+          echo "DOCKER_BUILD=$DOCKER_BUILD" >> $GITHUB_OUTPUT
+          echo "IS_NEW_UPSTREAM=$IS_NEW_UPSTREAM" >> $GITHUB_OUTPUT
+          
+          # Debug outputs
+          echo "Final version: $CLEAN_TAG"
+          echo "Build number: $DOCKER_BUILD"
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -53,30 +95,24 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/guniv/coolercontrol-docker:latest
-            ghcr.io/guniv/coolercontrol-docker:${{ steps.version.outputs.UPSTREAM_VERSION }}
-            ghcr.io/guniv/coolercontrol-docker:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
-          # Temporarily remove cache config for debugging
-          # cache-from: type=local,src=.docker-cache
-          # cache-to: type=local,dest=.docker-cache
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
 
       - name: Generate Release Notes
         id: release-notes
         run: |
           NOTES_FILE="release_notes.md"
           
-          # Get upstream release notes if new version
           if [[ "${{ steps.version.outputs.IS_NEW_UPSTREAM }}" == "true" ]]; then
             curl -s --header "PRIVATE-TOKEN: ${{ secrets.GL_PAT }}" \
               "https://gitlab.com/api/v4/projects/$PROJECT_ID/releases/${{ steps.version.outputs.UPSTREAM_VERSION }}" \
               | jq -r '.description' > upstream_notes.md
           fi
 
-          # Get Dockerfile changes since last build
           SINCE_DATE=$(git log -1 --format=%cd --date=iso-strict origin/main)
           git log --pretty=format:"- %s" --since="$SINCE_DATE" -- Dockerfile entrypoint.sh > docker_changes.md
 
-          # Combine notes
           echo "# Release Notes" > $NOTES_FILE
           [[ -s upstream_notes.md ]] && echo "## Upstream Changes" >> $NOTES_FILE && cat upstream_notes.md >> $NOTES_FILE
           echo -e "\n## Docker Image Updates" >> $NOTES_FILE
