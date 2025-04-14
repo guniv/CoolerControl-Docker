@@ -56,18 +56,21 @@ jobs:
       - name: Create Version Check File
         if: steps.verify-appimage.outputs.APPIMAGE_AVAILABLE == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Add this line
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Configure git with authentication
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git remote set-url origin "https://x-access-token:$GH_TOKEN@github.com/${{ github.repository }}.git"
-          
-          # Create version file
-          echo "${{ steps.get-tag.outputs.UPSTREAM_TAG }}" > new_version.txt
-          
-          # Commit and push
-          git add new_version.txt
-          git commit -m "New upstream version detected: ${{ steps.get-tag.outputs.UPSTREAM_TAG }}"
-          git pull --rebase  # Ensure you're up to date
-          git push --force-with-lease origin main
+      
+          # Check if version changed
+          NEW_TAG="${{ steps.get-tag.outputs.UPSTREAM_TAG }}"
+          CURRENT_TAG=$(cat new_version.txt 2>/dev/null || echo "")
+          if [ "$NEW_TAG" != "$CURRENT_TAG" ]; then
+            echo "$NEW_TAG" > new_version.txt
+            git add new_version.txt
+            git commit -m "New upstream version detected: $NEW_TAG"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "No version change detected. Skipping commit."
+          fi
