@@ -33,6 +33,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Determine Version and Build Number
         id: version
         env:
@@ -41,7 +42,7 @@ jobs:
           # Configure git
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-      
+          
           if [[ -f new_version.txt ]]; then
             UPSTREAM_TAG=$(cat new_version.txt)
             LAST_RELEASE=$(cat last_release.txt 2>/dev/null || echo "")
@@ -55,8 +56,8 @@ jobs:
               echo "No new version. Removing trigger file..."
               rm -f new_version.txt
             fi
-      
-            # Remove trigger file and commit only if it exists
+            
+            # Remove trigger file if it still exists and commit the change
             if [ -f new_version.txt ]; then
               git rm new_version.txt
               git commit -m "Remove version trigger file" || echo "No changes to commit"
@@ -67,10 +68,18 @@ jobs:
             IS_NEW_UPSTREAM=false
           fi
 
+          # Define a build number. Adjust logic as needed.
+          DOCKER_BUILD=1
+          
+          # Set outputs so they can be used by later steps
+          echo "UPSTREAM_VERSION=${UPSTREAM_TAG}" >> $GITHUB_OUTPUT
+          echo "DOCKER_BUILD=${DOCKER_BUILD}" >> $GITHUB_OUTPUT
+          echo "IS_NEW_UPSTREAM=${IS_NEW_UPSTREAM}" >> $GITHUB_OUTPUT
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -80,6 +89,7 @@ jobs:
           driver: docker-container
 
       - name: Build and Push Docker Image
+        if: steps.version.outputs.IS_NEW_UPSTREAM == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -89,7 +99,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
 
-
       - name: Generate Release Notes
         id: release-notes
         run: |
@@ -97,12 +106,11 @@ jobs:
           touch $NOTES_FILE
           
           if [[ "${{ steps.version.outputs.IS_NEW_UPSTREAM }}" == "true" ]]; then
-            # Get and clean upstream notes
+            # Get and clean upstream release notes
             curl -s --header "PRIVATE-TOKEN: ${{ secrets.GL_PAT }}" \
               "https://gitlab.com/api/v4/projects/$PROJECT_ID/releases/${{ steps.version.outputs.UPSTREAM_VERSION }}" \
               | jq -r '.description' | sed 's/ (![0-9]\+)//g' > upstream_notes.md
             
-            # Add CoolerControl changes section with link
             if [[ -s upstream_notes.md ]]; then
               echo "## CoolerControl Changes" >> $NOTES_FILE
               cat upstream_notes.md >> $NOTES_FILE
@@ -110,11 +118,9 @@ jobs:
             fi
           fi
 
-          # Get Docker changes
           SINCE_DATE=$(git log -1 --format=%cd --date=iso-strict origin/main)
           git log --pretty=format:"- %s" --since="$SINCE_DATE" -- Dockerfile entrypoint.sh > docker_changes.md
 
-          # Add Docker updates section if there are changes
           if [[ -s docker_changes.md ]]; then
             echo -e "\n## Docker-specific Updates" >> $NOTES_FILE
             cat docker_changes.md >> $NOTES_FILE
@@ -123,6 +129,7 @@ jobs:
           echo "NOTES_FILE=$NOTES_FILE" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
+        if: steps.version.outputs.IS_NEW_UPSTREAM == 'true'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
