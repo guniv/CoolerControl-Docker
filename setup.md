@@ -21,6 +21,7 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - [Setting up a profile](#setting-up-a-profile)
   - [Combining sensors to create a custom sensor](#combining-sensors-to-create-a-custom-sensor)
 - [Troubleshooting](#troubleshooting)
+  - [Controlling Nvidia GPU fans](#controlling-nvidia-gpu-fans)
   - ["Unable to set PWM Value" and/or fan not staying on curve](#unable-to-set-pwm-value-andor-fan-not-staying-on-curve)
   - [Could not connect to DBUS](#could-not-connect-to-dbus)
   - [Slow HWMon Device detected](#slow-hwmon-device-detected)
@@ -112,6 +113,9 @@ Next, edit the _Extra Parameters_ section to add `--runtime=nvidia --gpus=all`.
     width="700" 
   />
 </p>
+
+> [!IMPORTANT]  
+> There is currently no way to control Nvidia GPU fans without leaving the container in privileged mode, and it is not recommended to leave the container in privileged mode.
 
 ### Privileged mode
 
@@ -352,6 +356,10 @@ Finally, under _Temp Sources_ select sensors that will be used for this custom s
 This sensor can now be used in a profile.
 
 ## Troubleshooting
+
+### Controlling Nvidia GPU fans
+
+There is currently no way to control Nvidia GPU fans without leaving the container in privileged mode, and it is **not recommended to leave the container in privileged mode.**
 
 ### "Unable to set PWM value" and/or fan not staying on curve
 
