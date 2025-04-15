@@ -25,6 +25,8 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - ["Unable to set PWM Value" and/or fan not staying on curve](#unable-to-set-pwm-value-andor-fan-not-staying-on-curve)
   - [Could not connect to DBUS](#could-not-connect-to-dbus)
   - [Slow HWMon Device detected](#slow-hwmon-device-detected)
+- [Known issues](#known-issues)
+  - [Hard drive spin down temperatures](#hard-drive-spin-down-temperatures)
 
 ## Prerequisites
 
@@ -372,3 +374,9 @@ The "Could not connect to DBUS" error is normal when running in a Docker contain
 ### Slow HWMon Device detected 
 
 The "Slow HWMon Device detected" error may be detected when Unraid spins disks down depending on your settings. This error can usually be safely ignored but may require your attention in some scenarios.
+
+## Known issues
+
+### Hard drive spin down temperatures
+
+At the moment, the last known temperature of a hard drive being reported to hwmon by drivetemp that has been spun down will only report the last known temperature of the device. This may impact a configuration that has a curve based on the drive speeds. For instance, fans could continue to run at a high speed if the drive spins down while running warm. 
