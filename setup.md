@@ -94,6 +94,9 @@ The CoolerControl configuration host path can be changed to store it somewhere e
 
 ### Adding Nvidia GPUs
 
+> [!IMPORTANT]  
+> There is currently no way to control Nvidia GPU fans without leaving the container in privileged mode, and it is not recommended to leave the container in privileged mode.
+
 To add Nvidia GPUs to CoolerControl, change _Basic View_ to _Advanced view_ in the top right of the _Add Container_ or _Update Container_ page when configuring the container.
 
 <p align="center">  
@@ -113,9 +116,6 @@ Next, edit the _Extra Parameters_ section to add `--runtime=nvidia --gpus=all`.
     width="700" 
   />
 </p>
-
-> [!IMPORTANT]  
-> There is currently no way to control Nvidia GPU fans without leaving the container in privileged mode, and it is not recommended to leave the container in privileged mode.
 
 ### Privileged mode
 
