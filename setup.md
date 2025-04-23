@@ -78,6 +78,8 @@ To add Nvidia GPUs to CoolerControl, the __Nvidia-Driver plugin__ from Community
 
 If these are installed, Nvidia GPUs will be able to show up in CoolerControl. See the [Nvidia section below](#adding-nvidia-gpus) for information on how to set this up.
 
+If using the [Nvidia powersaving script by SpaceInvaderOne](https://github.com/SpaceinvaderOne/nvidia_powersave) it may interfere with this container. See the [Issues with Nvidia powersaving](#issues-with-nvidia-powersaving) section below for how to fix this. 
+
 ## Initial CoolerControl setup
 
 Search for _CoolerControl_ in Community Applications and select _Install._
@@ -118,6 +120,8 @@ Next, edit the _Extra Parameters_ section to add `--runtime=nvidia --gpus=all`.
     width="700" 
   />
 </p>
+
+If using the [Nvidia powersaving script by SpaceInvaderOne](https://github.com/SpaceinvaderOne/nvidia_powersave) it may interfere with this container. See the [Issues with Nvidia powersaving](#issues-with-nvidia-powersaving) section below for how to fix this. 
 
 ### Privileged mode
 
@@ -362,6 +366,10 @@ This sensor can now be used in a profile.
 ### Controlling Nvidia GPU fans
 
 There is currently no way to control Nvidia GPU fans without leaving the container in privileged mode, and it is **not recommended to leave the container in privileged mode.**
+
+### Issues with Nvidia powersaving
+
+The [Nvidia powersaving script by SpaceInvaderOne](https://github.com/SpaceinvaderOne/nvidia_powersave) will stop the coolercontrold process used by this container if no other Docker containers are using the GPUs. To fix this, use [this revised script](https://github.com/guniv/CoolerControl-Docker/blob/main/tutorial/nvidia_power.sh) that specifically carves out an exception for coolercontrold.
 
 ### "Unable to set PWM value" and/or fan not staying on curve
 
