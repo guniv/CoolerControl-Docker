@@ -7,6 +7,7 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
 - [Prerequisites](#prerequisites)
   - [Enabling hard drive temperature reporting](#enabling-hard-drive-temperature-reporting)
   - [Confirm fans are visible to Unraid](#confirm-fans-are-visible-to-unraid)
+    - [Last resort: editing a kernel boot parameter](#last-resort-editing-a-kernel-boot-parameter)
   - [Nvidia GPU support](#nvidia-gpu-support)
 - [Initial CoolerControl setup](#initial-coolercontrol-setup)
   - [Adding Nvidia GPUs](#adding-nvidia-gpus)
@@ -73,6 +74,60 @@ If no fans are available under the _Array fan speed_ menu, it means the system f
 
 A potential fix for this is drivers from Community Applications. The __ITE IT87 Driver from ich777__ has worked for others in making the fans available. The __Nuvoton NCT6687 Driver from ich777__ may also work.
 
+#### Last resort: editing a kernel boot parameter
+
+A more extreme measure that may make fans available to Unraid involves editing the kernel boot parameter `acpi_enforce_resources`. This option is normally set to `strict`, but editing it to `lax` may allow the system to access hardware that is also claimed by the system's Advanced Configuration and Power Interface. 
+
+> [!CAUTION]  
+> Making this change can cause system instability. Read and follow the instructions below carefully to ensure the system can be recovered if an issue arises, and always make sure to have system backups, including the boot USB drive.
+
+On the Unraid server, go to the _Main_ tab and click on _Flash_ under _Boot Device_ to access the boot USB's settings.
+
+<p align="center">  
+  <img 
+    src="tutorial/flash.jpeg" 
+    alt="in the Unraid dashboard, we see Flash under Boot Device"
+  />
+</p>
+
+Scroll down on the page to the _Syslinux Configuration_ section. On the top right of the section, select the toggle to change from _Menu View_ to _Raw View_.
+
+This section defines the set of options that appear when booting the Unraid system. The configuration below is just an example and may be different on each system.
+
+<p align="center">  
+  <img 
+    src="tutorial/syslinux.jpeg" 
+    alt="in the Unraid boot USB settings, a typical default configuration is seen"
+    width="700" 
+  />
+</p>
+
+Edit this configuration by copying the default `label Unraid OS` section and pasting it again underneath before the next label. Then, add `acpi_enforce_resources=lax` after `append initrd=/bzroot`. Remove `menu default` from the original `Unraid OS` and rename the new section to something like `Unraid OS lax`. This name will be how it appears when the system is booting.
+
+<p align="center">  
+  <img 
+    src="tutorial/syslinuxedit.jpeg" 
+    alt="in the Unraid boot USB settings, the configuration has been edited"
+    width="700" 
+  />
+</p>
+
+Apply the changes and once again select the toggle to change from _Raw View_ to _Menu View_. 
+
+Make sure the new option you created appears and is selected and highlighted, which indicates it will be the default boot option.
+
+Next, reboot the system and ensure the new option is the default selection when booting the system.
+
+<p align="center">  
+  <img 
+    src="tutorial/bootoptions.jpeg" 
+    alt="the system boot menu is shown with the new option added"
+    width="700" 
+  />
+</p>
+
+Make sure the system boots correctly. If it does not boot correctly, reboot the server and select the original _Unraid OS_ option. Make sure in the _Flash_ settings that this option is set back to default. This should also be done if the new setting does not successfully expose the fans to Unraid.
+
 ### Nvidia GPU support
 
 To add Nvidia GPUs to CoolerControl, the __Nvidia-Driver plugin__ from Community Applications needs to be installed and the plugin must be used to install a Nvidia driver on the system.
@@ -99,7 +154,7 @@ The CoolerControl configuration host path can be changed to store it somewhere e
 
 ### Adding Nvidia GPUs
 
-> [!IMPORTANT]  
+> [!WARNING]  
 > There is currently no way to control Nvidia GPU fans without leaving the container in privileged mode, and it is not recommended to leave the container in privileged mode.
 
 To add Nvidia GPUs to CoolerControl, change _Basic View_ to _Advanced view_ in the top right of the _Add Container_ or _Update Container_ page when configuring the container.
@@ -126,7 +181,7 @@ If using the [Nvidia powersaving script by SpaceInvaderOne](https://github.com/S
 
 ### Privileged mode
 
-> [!IMPORTANT]  
+> [!WARNING]  
 > It is not recommended to leave the container in privileged mode, and it should be disabled after setup of the container has been finished.
 
 While following this tutorial and while performing initial setup on the container, run it in privileged mode. This gives the container unrestricted access to the Unraid system, which will allow CoolerControl to discover any available devices on the system. 
