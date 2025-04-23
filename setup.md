@@ -22,6 +22,7 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - [Combining sensors to create a custom sensor](#combining-sensors-to-create-a-custom-sensor)
 - [Troubleshooting](#troubleshooting)
   - [Controlling Nvidia GPU fans](#controlling-nvidia-gpu-fans)
+  - [Issues with Nvidia powersaving](#issues-with-nvidia-powersaving)
   - ["Unable to set PWM Value" and/or fan not staying on curve](#unable-to-set-pwm-value-andor-fan-not-staying-on-curve)
   - [Could not connect to DBUS](#could-not-connect-to-dbus)
   - [Slow HWMon Device detected](#slow-hwmon-device-detected)
