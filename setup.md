@@ -114,7 +114,7 @@ Edit this configuration by copying the default `label Unraid OS` section and pas
 
 Apply the changes and once again select the toggle to change from _Raw View_ to _Menu View_. 
 
-Make sure the new option you created appears and is selected and highlighted, which indicates it will be the default boot option.
+Make sure the new option created appears and is selected and highlighted, which indicates it will be the default boot option.
 
 Next, reboot the system and ensure the new option is the default selection when booting the system.
 
@@ -437,7 +437,7 @@ The "Could not connect to DBUS" error is normal when running in a Docker contain
 
 ### Slow HWMon Device detected 
 
-The "Slow HWMon Device detected" error may be detected when Unraid spins disks down depending on your settings. This error can usually be safely ignored but may require your attention in some scenarios.
+The "Slow HWMon Device detected" error may be detected when Unraid spins disks down depending on the settings. This error can usually be safely ignored but may require attention in some scenarios.
 
 ## Known issues
 
