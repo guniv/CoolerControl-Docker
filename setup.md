@@ -22,10 +22,11 @@ Setting up CoolerControl in Unraid is fairly straightforward but does require a 
   - [Setting up a profile](#setting-up-a-profile)
   - [Combining sensors to create a custom sensor](#combining-sensors-to-create-a-custom-sensor)
 - [Troubleshooting](#troubleshooting)
+  - [Could not connect to DBUS](#could-not-connect-to-dbus)
+  - [Issues with nct6687 drivers](#issues-with-nct6687-drivers)
   - [Controlling Nvidia GPU fans](#controlling-nvidia-gpu-fans)
   - [Issues with Nvidia powersaving](#issues-with-nvidia-powersaving)
   - ["Unable to set PWM Value" and/or fan not staying on curve](#unable-to-set-pwm-value-andor-fan-not-staying-on-curve)
-  - [Could not connect to DBUS](#could-not-connect-to-dbus)
   - [Slow HWMon Device detected](#slow-hwmon-device-detected)
 - [Known issues](#known-issues)
   - [Hard drive spin down temperatures](#hard-drive-spin-down-temperatures)
@@ -419,6 +420,14 @@ This sensor can now be used in a profile.
 
 ## Troubleshooting
 
+### Could not connect to DBUS
+
+The "Could not connect to DBUS" error is normal when running in a Docker container. This feature is normally used by CoolerControl to check whether the system is sleeping, which will not happen with a Docker container. This error can be safely ignored.
+
+### Issues with nct6687 drivers
+
+In some cases, Unraid may see devices using the nct6687 driver that is built-in to the Linux kernel but not be able to control them. Using the __Nuvoton NCT6687 Driver from ich777__ from Community Applications will likely work. If using the Nuvoton driver, make sure in Dynamix System Temp that the _Available Drivers_ option does NOT include nct6683 even if it is detected and available. These drivers will conflict and interfere with each other.
+
 ### Controlling Nvidia GPU fans
 
 There is currently no way to control Nvidia GPU fans without leaving the container in privileged mode, and it is **not recommended to leave the container in privileged mode.**
@@ -430,10 +439,6 @@ The [Nvidia powersaving script by SpaceInvaderOne](https://github.com/Spaceinvad
 ### "Unable to set PWM value" and/or fan not staying on curve
 
 If CoolerControl is encountering this error or the fans won't stay at a speed to match the set curve, the system's BIOS settings may be interfering with CoolerControl. The fix will vary from BIOS to BIOS but it is recommended to set the system fans at full speed in the system BIOS.
-
-### Could not connect to DBUS
-
-The "Could not connect to DBUS" error is normal when running in a Docker container. This feature is normally used by CoolerControl to check whether the system is sleeping, which will not happen with a Docker container. This error can be safely ignored.
 
 ### Slow HWMon Device detected 
 
