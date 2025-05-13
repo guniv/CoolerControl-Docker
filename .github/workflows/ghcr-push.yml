@@ -11,6 +11,11 @@ on:
         required: true
         default: '1'
 
+permissions:
+  contents: read   # For checking out code
+  packages: write  # For pushing to GHCR
+  id-token: write  # For GitHub OIDC authentication
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: guniv/coolercontrol-docker
