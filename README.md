@@ -1,3 +1,11 @@
+<div align="center" width="100%">
+    <div>
+        <a target="_blank" href="https://github.com/guniv/CoolerControl-Docker"><img src="https://img.shields.io/github/stars/guniv/CoolerControl-Docker?style=flat&label=Stars" /></a>
+        <a target="_blank" href="https://github.com/guniv/CoolerControl-Docker/pkgs/container/coolercontrol-docker"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fipitio%2Fbackage%2Findex%2Fguniv%2FCoolerControl-Docker%2Fcoolercontrol-docker.json&query=downloads&label=ghcr.io%20pulls" /></a>
+        <a target="_blank" href="https://hub.docker.com/r/gunivx/coolercontrol-docker"><img src="https://img.shields.io/docker/pulls/gunivx/coolercontrol-docker?label=docker%20hub%20pulls" /></a>
+    </div>
+</div>
+
 # CoolerControl-Docker
 
 This is my insanely basic attempt at putting [CoolerControl](https://gitlab.com/coolercontrol/coolercontrol) in a Docker container. Let me preface with: I don't really know what I'm doing! I barely pulled this together.
