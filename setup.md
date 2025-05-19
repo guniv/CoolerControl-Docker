@@ -39,6 +39,9 @@ There is some setup required to get the full functionality of CoolerControl on U
 
 CoolerControl relies on the [Linux Hardware Monitoring kernel API](https://docs.kernel.org/hwmon/hwmon-kernel-api.html) (hwmon) to collect information like sensor temperatures from the system. By default, SATA devices like hard drives do not have their temperatures reported to hwmon. Enabling this in Unraid is simple: open the Unraid terminal and enter the command `sudo modprobe drivetemp`. 
 
+> [!WARNING]  
+> On some systems running drivetemp can prevent drives from spinning down and may cause other issues. If the system becomes unstable, try running CoolerControl without enabling drivetemp. 
+
 This command has to be run every time the system is rebooted. To do this, use the User Scripts plugin from Andrew Zawadzki. In User Scripts, add a new script, and then edit the script to include that command:
 
 <p align="center">  
