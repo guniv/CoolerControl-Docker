@@ -41,7 +41,7 @@ CoolerControl relies on the [Linux Hardware Monitoring kernel API](https://docs.
 
 > [!WARNING]  
 > On some systems running drivetemp can prevent drives from spinning down and may cause other issues. If the system becomes unstable, try running CoolerControl without enabling drivetemp.
-> There is also an issue with drivetemp on Unraid versions lower than 7.0 due to a bug in the Linux kernel.
+> There is also an issue with drivetemp on Unraid versions lower than 7.0.1 due to a bug in the Linux kernel.
 
 This command has to be run every time the system is rebooted. To do this, use the User Scripts plugin from Andrew Zawadzki. In User Scripts, add a new script, and then edit the script to include that command:
 
