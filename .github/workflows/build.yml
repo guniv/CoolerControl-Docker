@@ -102,12 +102,9 @@ jobs:
           context: .
           push: true
           tags: |
-            # GitHub Container Registry (GHCR)
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
-
-            # Docker Hub
             ${{ env.DOCKERHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.DOCKERHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
             ${{ env.DOCKERHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
