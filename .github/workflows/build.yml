@@ -20,9 +20,10 @@ permissions:
   id-token: write
 
 env:
+  GHCR_IMAGE_NAME: guniv/coolercontrol-docker
+  DOCKERHUB_IMAGE_NAME: gunivx/coolercontrol-docker
   REGISTRY: ghcr.io
-  IMAGE_NAME: guniv/coolercontrol-docker
-  DOCKERHUB_REGISTRY: docker.io  # Explicit Docker Hub registry URL
+  DOCKERHUB_REGISTRY: docker.io
   PROJECT_ID: 30707566
 
 jobs:
@@ -94,7 +95,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           driver: docker-container
-
+      
       - name: Build and Push Docker Image
         if: steps.version.outputs.IS_NEW_UPSTREAM == 'true'
         uses: docker/build-push-action@v5
@@ -102,12 +103,12 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
-            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
-            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
+            ${{ env.REGISTRY }}/${{ env.GHCR_IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.GHCR_IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
+            ${{ env.REGISTRY }}/${{ env.GHCR_IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
+            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}:latest
+            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
+            ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
             
       - name: Generate Release Notes
         id: release-notes
