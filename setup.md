@@ -452,4 +452,4 @@ The "Slow HWMon Device detected" error may be detected when Unraid spins disks d
 
 ### Hard drive spin down temperatures
 
-At the moment, the last known temperature of a hard drive being reported to hwmon by drivetemp that has been spun down will only report the last known temperature of the device. This may impact a configuration that has a curve based on the drive speeds. For instance, fans could continue to run at a high speed if the drive spins down while running warm. 
+In CoolerControl versions earlier than 2.2.0, the last known temperature of a hard drive being reported to hwmon by drivetemp that has been spun down will only report the last known temperature of the device. This may impact a configuration that has a curve based on the drive speeds. For instance, fans could continue to run at a high speed if the drive spins down while running warm. Version 2.2.0 added support in the settings under "Daemon" to detect drive power state.
