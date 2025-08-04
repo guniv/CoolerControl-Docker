@@ -1,5 +1,16 @@
 # Setting up CoolerControl in Unraid
 
+> [!WARNING]
+> **🚨 DEPRECATION NOTICE - MIGRATION REQUIRED BY NOVEMBER 1st, 2025 🚨**
+> 
+> This unofficial Docker container is being **SUNSET** due to the release of an official CoolerControl Docker image.
+> 
+> **Please migrate to the official image:** `coolercontrol/coolercontrold:latest`
+> 
+> ⚠️ **Continued maintenance of this container is NOT GUARANTEED past the migration deadline.**
+> 
+> The below documentation has also been migrated to the official CoolerControl documentation website: https://docs.coolercontrol.org/installation/unraid.html
+
 Setting up CoolerControl in Unraid is fairly straightforward but does require a little manual work to make sure it's working correctly. This tutorial will walk through setting it up.
 
 ## Table of Contents

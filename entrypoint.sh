@@ -1,5 +1,27 @@
 #!/bin/bash
 
+# ============================================================================
+# DEPRECATION WARNING
+# ============================================================================
+echo "╔══════════════════════════════════════════════════════════════════════════════╗"
+echo "║                              ⚠️  DEPRECATION WARNING ⚠️                        ║"
+echo "╠══════════════════════════════════════════════════════════════════════════════╣"
+echo "║ This unofficial Docker container is being SUNSET due to the release of an   ║"
+echo "║ official CoolerControl Docker image.                                        ║"
+echo "║                                                                              ║"
+echo "║ 🚨 MIGRATION REQUIRED BY: November 1st, 2025                               ║"
+echo "║                                                                              ║"
+echo "║ Please update your Docker configuration to use the official image:          ║"
+echo "║ 📦 coolercontrol/coolercontrold:latest                                      ║"
+echo "║                                                                              ║"
+echo "║ ⚠️  Continued maintenance of this container is NOT GUARANTEED past the      ║"
+echo "║    migration deadline.                                                      ║"
+echo "║                                                                              ║"
+echo "╚══════════════════════════════════════════════════════════════════════════════╝"
+echo ""
+echo "Container will start in 10 seconds..."
+sleep 10
+
 # Initialize essential directories first
 sudo mkdir -p "${XDG_RUNTIME_DIR}"
 sudo chown cooleruser:cooleruser "${XDG_RUNTIME_DIR}"

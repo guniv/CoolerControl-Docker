@@ -8,6 +8,17 @@
 
 # CoolerControl-Docker
 
+> [!WARNING]
+> **🚨 DEPRECATION NOTICE - MIGRATION REQUIRED BY NOVEMBER 1st, 2025 🚨**
+> 
+> This unofficial Docker container is being **SUNSET** due to the release of an official CoolerControl Docker image.
+> 
+> **Please migrate to the official image:** `coolercontrol/coolercontrold:latest`
+> 
+> ⚠️ **Continued maintenance of this container is NOT GUARANTEED past the migration deadline.**
+> 
+> The below documentation has also been migrated to the official CoolerControl documentation website: https://docs.coolercontrol.org/installation/unraid.html
+
 This is my insanely basic attempt at putting [CoolerControl](https://gitlab.com/coolercontrol/coolercontrol) in a Docker container. Let me preface with: I don't really know what I'm doing! I barely pulled this together.
 
 Why did I do this? I wanted a good way to manage the fans on my Unraid server, and CoolerControl is currently the best way to manage fans on Linux systems. 
