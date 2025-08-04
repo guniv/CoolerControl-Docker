@@ -110,45 +110,6 @@ jobs:
             ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}
             ${{ env.DOCKERHUB_REGISTRY }}/${{ env.DOCKERHUB_IMAGE_NAME }}:${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
             
-      - name: Generate Release Notes
-        id: release-notes
-        run: |
-          NOTES_FILE="release_notes.md"
-          touch $NOTES_FILE
-          
-          if [[ "${{ steps.version.outputs.IS_NEW_UPSTREAM }}" == "true" ]]; then
-            # Get and clean upstream release notes
-            curl -s --header "PRIVATE-TOKEN: ${{ secrets.GL_PAT }}" \
-              "https://gitlab.com/api/v4/projects/$PROJECT_ID/releases/${{ steps.version.outputs.UPSTREAM_VERSION }}" \
-              | jq -r '.description' | sed 's/ (![0-9]\+)//g' > upstream_notes.md
-            
-            if [[ -s upstream_notes.md ]]; then
-              echo "## CoolerControl Changes" >> $NOTES_FILE
-              cat upstream_notes.md >> $NOTES_FILE
-              echo -e "\n[View full release notes](https://gitlab.com/coolercontrol/coolercontrol/-/releases/${{ steps.version.outputs.UPSTREAM_VERSION}})" >> $NOTES_FILE
-            fi
-          fi
-
-          SINCE_DATE=$(git log -1 --format=%cd --date=iso-strict origin/main)
-          git log --pretty=format:"- %s" --since="$SINCE_DATE" -- Dockerfile entrypoint.sh > docker_changes.md
-
-          if [[ -s docker_changes.md ]]; then
-            echo -e "\n## Docker-specific Updates" >> $NOTES_FILE
-            cat docker_changes.md >> $NOTES_FILE
-          fi
-
-          echo "NOTES_FILE=$NOTES_FILE" >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        if: steps.version.outputs.IS_NEW_UPSTREAM == 'true'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.version.outputs.UPSTREAM_VERSION }}-docker${{ steps.version.outputs.DOCKER_BUILD }}
-          name: ${{ steps.version.outputs.UPSTREAM_VERSION }}${{ steps.version.outputs.IS_NEW_UPSTREAM != 'true' && format('-docker{0}', steps.version.outputs.DOCKER_BUILD) || '' }}
-          body_path: ${{ steps.release-notes.outputs.NOTES_FILE }}
-          draft: false
-          prerelease: false
-
       - name: Update Version Tracker
         if: steps.version.outputs.IS_NEW_UPSTREAM == 'true'
         run: |
