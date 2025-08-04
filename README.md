@@ -17,7 +17,7 @@
 > 
 > ⚠️ **Continued maintenance of this container is NOT GUARANTEED past the migration deadline.**
 > 
-> The below documentation has also been migrated to the official CoolerControl documentation website: https://docs.coolercontrol.org/installation/unraid.html
+> The documentation has also been migrated to the official CoolerControl documentation website: https://docs.coolercontrol.org/installation/unraid.html
 
 This is my insanely basic attempt at putting [CoolerControl](https://gitlab.com/coolercontrol/coolercontrol) in a Docker container. Let me preface with: I don't really know what I'm doing! I barely pulled this together.
 
